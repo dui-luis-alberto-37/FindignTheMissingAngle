@@ -1,5 +1,6 @@
 from collections import defaultdict
 from itertools import combinations
+from copy import deepcopy
 
 
 
@@ -12,7 +13,8 @@ class GeometicRepresentation:
         
         self.points = set()
         #self.lines = set()
-        #self.triangles = set()
+        
+        self.triangles = []
         
         
         self.lasts = {
@@ -22,30 +24,66 @@ class GeometicRepresentation:
         
         
         
-    def expand_line(self,key, nline):
-        ''' when nline has at least 2 same points with line then this lastone expand to coincide
-            respetin line order'''
+        
+        
+        
+    def _expand_line(self,key, nline):
+        ''' when nline has at least 2 same points with line then this last one expand to coincide
+            first by line order, then by nline'''
             
         line = self.lines_points[key]
         
         intersections = set(line) & set(nline)
         n_intersec = len(intersections)
         
-        # inverse_order = False
         
-        j = 0
+        
+        order_l0 = []
+        index_l0 = []
+        
+        order_l1 = []
+        index_l1 = []
+        
+        
+        for i, point in enumerate(line):
+            if point in intersections:
+                order_l0.append(point)
+                index_l0.append(i)
+        
+        for i, point in enumerate(nline):
+            if point in intersections:
+                order_l1.append(point)
+                index_l1.append(i)
+                
+        #print(line, nline)
+        #print(index_l0, index_l1)
+       
+        if order_l0 != order_l1:
+            '''Se usa si el orden no es el mismo'''
+            
+            nline = nline[::-1]
+            
+            index_l1 = [len(nline) - 1 - i for i in index_l1][::-1]
+            
+            #print(nline)
+            #print(index_l1)
+         
+        last_i, last_j = 0, 0
+        
+        
         nn_line = []
+        for i,j in zip(index_l0, index_l1):
+            
+            nn_line += line[last_i:i] + nline[last_j:j] + line[i:i+1]
+            last_i, last_j = i + 1, j + 1
+            #print(nn_line)
+            
+        nn_line += line[i+1:] + nline[j+1:]
+            
         
-        while line:
-            p0 = line.pop(0)
-            nn_line.append(p0)
-            if p0 in intersections:
-                left  = []
-                right = []
-                for p1 in nline:
-                    if p1 in intersections and p1 != p0:
-                        inverse_order = True
-        
+
+        self.lines_points[key] = nn_line
+                
         
         return None
     
@@ -55,8 +93,8 @@ class GeometicRepresentation:
         '''Check if the line is already in the representation. If it is, return None.'''
         for key, line in self.lines_points.items():
             if len(set(nline) & set(line)) >= 2:
-                print(f"Line {key} already exists.")
-                self.expand_line(key, nline)                
+                print(f"Line {key} already exists, now expanding.")
+                self._expand_line(key, nline)                
                 return None
 
         
@@ -79,7 +117,10 @@ class GeometicRepresentation:
         
     
     def get_triagles(self):
+        
         """Get the triangles from the geometric representation."""
+        
+        
         triangles = set()
         lines = self.lines_points.values()
         for line in lines:
@@ -91,11 +132,19 @@ class GeometicRepresentation:
                     c = point
                     triangles.add(set([a,b,c]))
         
+        
+        return triangles
 
                         
-
+    def _new_triangle(name):
+        triangle = {
+            'name' : name,
+            'angles' : [None, None, None],
+            'longituds' : [None, None, None],
+        }
+        
+        return triangle
             
             
-            
-        return triangles
+    
         
