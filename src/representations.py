@@ -5,28 +5,37 @@ from copy import deepcopy
 
 
 class GeometicRepresentation:
+    
+    
     def __init__(self, name: str = None):
         #self.name = name
         self.lines_points = defaultdict(list)
-        self.points_lines = defaultdict(list)
+        self.points_lines = defaultdict(set)
         
         
         self.points = set()
         #self.lines = set()
         
-        self.triangles = []
+        self.triangles_names = []
+        
+        self.triangles_config = dict()
         
         
-        self.lasts = {
-            "line": 0,
-            "point": 0,
-        }
+        # self.lasts = {
+        #     "line": 0,
+        #     # "point": 0,
+        # }
         
+        self.last_l = 0
         
-        
-        
-        
-        
+        self.seg = '_segment'
+        self.angle = '_angle'
+     
+     
+     
+     
+     
+     
     def _expand_line(self,key, nline):
         ''' when nline has at least 2 same points with line then this last one expand to coincide
             first by line order, then by nline'''
@@ -83,11 +92,14 @@ class GeometicRepresentation:
         
 
         self.lines_points[key] = nn_line
-                
+        
+        for point in nn_line:
+            self.points_lines[point].add(key)
+            self.points.add(point)
         
         return None
     
-    def add_line(self, nline: list,):
+    def add_line(self, nline: list,):      # posible change: triangle generation with each new line
         """Add a line to the geometric representation."""
         
         '''Check if the line is already in the representation. If it is, return None.'''
@@ -99,29 +111,39 @@ class GeometicRepresentation:
 
         
         
-        last_l = self.lasts["line"]
+        # last_l = self.lasts["line"]
+        last_l = self.last_l
+        
         self.lines_points[f'l{last_l}'] = nline
         
-        self.lasts["line"] += 1
+        # self.lasts["line"] += 1
+        self.last_l += 1
         
         for point in nline:
-            self.points_lines[point].append(f'l{last_l}')
+            self.points_lines[point].add(f'l{last_l}')
             self.points.add(point)
             
             
 
-    def triangle_internal_sum(triangle):
+    def triangle_internal_sum(self, name):
         """Asserst that the internal angle sum of a triangle is 180 degrees."""
-        x, y, z = triangle
-        return x + y + z == 180  
+        
+        triangle = self.triangles_config[name]
+        
+        sum_ = 0
+        
+        for point in name:
+            sum_ += triangle[point+self.angle]
+        
+        return sum_ == 180 
         
     
     def get_triagles(self):
         
         """Get the triangles from the geometric representation."""
         
+        new_triangles = set()
         
-        triangles = set()
         lines = self.lines_points.values()
         for line in lines:
             colineal_points = set(line)
@@ -130,21 +152,40 @@ class GeometicRepresentation:
                 a, b = colineal_pair
                 for point in non_colineal:
                     c = point
-                    triangles.add(set([a,b,c]))
+                    triangle = set([a,b,c])
+                    if triangle not in self.triangles_names:
+                        new_triangles.add(triangle)
+                    self.triangles_names.add(triangle)
+                    
+        
+        for triangle in new_triangles:
+            self.triangles_config[triangle] = self._new_triangle(triangle)
         
         
-        return triangles
+        return self.triangles_names
 
                         
-    def _new_triangle(name):
+    def _new_triangle(self, name:set):
+        
+        
         triangle = {
             'name' : name,
-            'angles' : [None, None, None],
-            'longituds' : [None, None, None],
         }
         
+        seg = self.seg
+        angle = self.angle
+        
+        segmentes = combinations(name, 2)
+        
+        for point, segment in name, segmentes:
+            triangle[point+angle] = None
+            triangle[segment+seg] = None
+        
         return triangle
-            
+    
+    def new_angle():pass
+    
+    def new_segment():pass
             
     
         
