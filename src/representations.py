@@ -1,5 +1,5 @@
 from collections import defaultdict
-from itertools import combinations
+from itertools import combinations, permutations
 from copy import deepcopy
 
 
@@ -16,10 +16,11 @@ class GeometicRepresentation:
         self.points = set()
         #self.lines = set()
         
-        self.triangles_names = []
+        self.triangles_names = set()
         
-        self.triangles_config = dict()
+        #self.triangles_config = dict()
         
+        self.angles = dict()        
         
         # self.lasts = {
         #     "line": 0,
@@ -29,7 +30,7 @@ class GeometicRepresentation:
         self.last_l = 0
         
         self.seg = '_segment'
-        self.angle = '_angle'
+        self.ang = '_angle'
      
      
      
@@ -128,12 +129,18 @@ class GeometicRepresentation:
     def triangle_internal_sum(self, name):
         """Asserst that the internal angle sum of a triangle is 180 degrees."""
         
-        triangle = self.triangles_config[name]
+        #triangle = self.triangles_config[name]
+        #sum_ = 0
+        #
+        #for point in name:
+        #    sum_ += triangle[point+self.ang]
+        #
+        
+        angles = [''.join(angle) for angle in permutations(name, 3)]
         
         sum_ = 0
-        
-        for point in name:
-            sum_ += triangle[point+self.angle]
+        for angle in angles:
+            sum_ += self.angles[angle]
         
         return sum_ == 180 
         
@@ -142,7 +149,7 @@ class GeometicRepresentation:
         
         """Get the triangles from the geometric representation."""
         
-        new_triangles = set()
+        # new_triangles = set()
         
         lines = self.lines_points.values()
         for line in lines:
@@ -152,14 +159,14 @@ class GeometicRepresentation:
                 a, b = colineal_pair
                 for point in non_colineal:
                     c = point
-                    triangle = set([a,b,c])
-                    if triangle not in self.triangles_names:
-                        new_triangles.add(triangle)
+                    triangle = frozenset([a,b,c])
+                    # if triangle not in self.triangles_names:
+                    #     new_triangles.add(triangle)
                     self.triangles_names.add(triangle)
                     
         
-        for triangle in new_triangles:
-            self.triangles_config[triangle] = self._new_triangle(triangle)
+        # for triangle in new_triangles:
+        #     self.triangles_config[triangle] = self._new_triangle(triangle)
         
         
         return self.triangles_names
@@ -173,18 +180,74 @@ class GeometicRepresentation:
         }
         
         seg = self.seg
-        angle = self.angle
+        angle = self.ang
         
         segmentes = combinations(name, 2)
         
-        for point, segment in name, segmentes:
+        for point, segment in zip(name, segmentes):
+            
+            segment = ''.join(segment)
             triangle[point+angle] = None
             triangle[segment+seg] = None
         
         return triangle
     
-    def new_angle():pass
-    
+    def new_angle(self, name, value):
+        
+        l, c, r = name
+        
+        
+        lines = self.points_lines
+        
+        l0_key = (lines[l] & lines[c]).pop()
+        l1_key = (lines[c] & lines[r]).pop()
+        print(str(l0_key))
+        
+        
+        lines = self.lines_points
+        
+        l0 = lines[l0_key]
+        l1 = lines[l1_key]
+        print(lines)
+        
+        
+        l0_dir = 'r'
+        c_ubi = None
+        for i, point in enumerate(l0):
+            if point == l:
+                l0_dir = 'l'
+            elif point == c:
+                c_ubi = i
+                break
+            
+        if l0_dir == 'l':
+            L = l0[:c_ubi]
+        else:
+            L = l0[c_ubi+1:]
+            
+        
+        l1_dir = 'r'
+        c_ubi = None
+        for i, point in enumerate(l1):
+            if point == r:
+                l1_dir = 'l'
+            elif point == c:
+                c_ubi = i
+                break
+        
+        if l1_dir == 'l':
+            R = l1[:c_ubi]
+        else:
+            R = l1[c_ubi+1:]
+            
+        for l in L:
+            for r in R:
+                name = l+c+r
+                
+                #self.angle[name][c+self.ang] = value
+                self.angles[name] = value
+            
+            
     def new_segment():pass
             
     

@@ -4,9 +4,24 @@ from representations import GeometicRepresentation as Geom
 
 G = Geom()
 
-G.add_line(['A', 'B', 'C'])
-b = ['D', 'A', 'B', 'E', 'C']
-G.add_line(b[::1])
+G.add_line(['C', 'G', 'F', 'A'])
+
+G.add_line(['D', 'I', 'J', 'A'])
+
+G.add_line(['C', 'H', 'I', 'E'])
+
+G.add_line(['D', 'H', 'G', 'B'])
+
+G.add_line(['B', 'F', 'J', 'E'])
+
+
+G.new_angle('DGA',100)
+
+G.new_angle('ICA',58)
+
+G.new_angle('AIC',93)
+
+ 
 
 
 print('\n'+'-'*5+'TEST OUTPUT' + '-'*5+'\n')
@@ -27,3 +42,8 @@ print()
 print()
 
 print(f'all points = {G.points}')
+
+print()
+print()
+
+print(f'angles = {G.angles}')
