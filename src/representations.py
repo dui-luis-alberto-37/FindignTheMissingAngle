@@ -20,7 +20,8 @@ class GeometicRepresentation:
         
         #self.triangles_config = dict()
         
-        self.angles = dict()        
+        self.angles = dict()
+        self.segments = defaultdict(None)
         
         # self.lasts = {
         #     "line": 0,
@@ -248,7 +249,167 @@ class GeometicRepresentation:
                 self.angles[name] = value
             
             
-    def new_segment():pass
-            
-    
+    def new_segment(self, name, value):
         
+        a, b = name
+        a, b = sorted([a,b])
+
+        if a == b:
+            print('Can\'t asing a value')
+            return None
+
+        name = frozenset(name)
+
+        line_key = (self.points_lines[a] & self.points_lines[b]).pop()
+        
+        found = 0
+        line = self.lines_points[line_key]
+
+        for i, point in enumerate(line):
+            if found == 2:
+                break
+            elif point == a:
+                a_indx = i
+                found += 1
+            elif point == b:
+                b_indx = i
+                found += 1
+        
+        
+        if (diff := abs(a_indx - b_indx)) == 1:
+            self.segments[name] = value
+        # elif diff == 0:
+        #     return None
+        else:
+            if (v:= self.segments[name]):
+                if v != value:
+                    print('You can\'t asing a differnt value to big segmenst, try with consecutive segments')
+                return None
+            
+            for sep in range(a_indx+1, b_indx):
+                
+                left  = frozenset(line[a_indx] + line[sep])
+                right = frozenset(line[sep] + line[b_indx])
+
+                if (l:= self.segments[left]) and (r:= self.segments[right]):
+                    if r + l == value:
+                        break
+                    else:
+                        print(f'Can\'t asing the value {value} because {left} + {right} sums {r+l}')
+                        return None
+                
+                self.segments[name] = value
+
+                for i in range(a_indx+1, b_indx):
+                    left = frozenset(line[a_indx] + line[i])
+                    right = frozenset(line[i] +line[b_indx])
+                    if (l_value := self.segments[left]) and not (r_value := self.segments[right]):
+                        r_name = ''.join(right)
+
+                        self.new_segment(r_name, value - l_value)
+                    elif r_value and not l_value:
+                        l_name = ''.join(left)
+
+                        self.new_segment(l_name, value - r_value)
+                    
+                for i in range(a_indx+1, b_indx-1):
+                    for j in range (i+1, b_indx):
+                        
+                        left    = frozenset(line[a_indx] + line[i])
+                        center  = frozenset(line[i] + line[j])
+                        right   = frozenset(line[j] + line[b_indx])
+
+                        if (l_value := self.segments[left]) and (r_value := self.segments[right]) and not (c_value := self.segments[center]):
+                            c_name = ''.join(center)
+
+                            self.new_segment(c_name, value - (l_value + r_value))
+
+                for i in range(a_indx-1, -1, -1):
+                    left = frozenset(line[i] + line[a_indx])
+                    big  = frozenset(line[i] + line[b_indx])
+
+                    b_value = self.segments[big]
+                    l_value = self.segments[left]
+                    if b_value and not l_value:
+                        l_name = ''.join(left)
+                        self.new_segment(l_name, b_value - value )
+                    elif l_value and not b_value:
+                        b_name = ''.join(big)
+                        self.new_segment(b_name, value + l_value)
+                
+                for i in range(b_indx+1, len(line)):
+                    right = frozenset(line[b_indx] + line[i])
+                    big = frozenset(line[a_indx] + line[i])
+                    r_value = self.segments[right]
+                    b_value = self.segments[big]
+
+                    if b_value and not r_value:
+                        r_name = ''.join(right)
+                        self.new_segment(r_name, b_value - value)
+                    elif r_value and not b_value:
+                        b_name = ''.join(big)
+                        self.new_segment(b_name, value + r_value)
+                    
+
+                for i in range(0, a_indx-1):
+                    for j in range(i+1, a_indx):
+                        left   = frozenset(line[i] + line[j])
+                        center = frozenset(line[j] + line[a_indx])
+                        big    = frozenset(line[i] + line[b_indx])
+                        
+                        l_value = self.segments(left)
+                        c_value = self.segments[center]
+                        b_value = self.segments
+
+
+                        if True: pass
+            # sub_segments_indx = combinations(range(a_indx, b_indx+1), 2)
+# 
+            # n_none = 0
+# 
+            # for sub_segment in sub_segments_indx:
+            #     i,j = sub_segment
+            #     name = line[i] + line[j]
+            #     if self.segments[name] == None:
+            #         n_none += 1
+            #         if n_none == 1:
+            #             first_none_name = name
+            # 
+            # if n_none >= 1:
+            #     
+# 
+            #     if n_none == 1:
+            #         name = frozenset(first_none_name)
+            #         c, d = name
+            #         #found = 0
+            #         #for i, point in enumerate(line[a_indx:b_indx+1]):
+            #         #    if found == 2:
+            #         #        break
+            #         #    elif point == c:
+            #         #        c_indx = i
+            #         #        found += 1
+            #         #    elif point == d:
+            #         #        d_indx = i
+            #         #        found += 1
+## 
+            #         Name = frozenset(a + b)
+            #         
+            #         left_name  = frozenset(a+c)
+            #         right_name = frozenset(d+b)
+# 
+            #         if a == c:
+            #             left_value = 0
+            #         else:
+            #             left_value = self.segments[left_name]
+            #         
+            #         if d == b:
+            #             right_value = 0
+            #         else:
+            #             right_value = self.segments[right_name]
+            #         
+            #         nvalue = value - (left_value + right_value)
+            #         self.new_segment(name, nvalue)
+            #     
+            #     
+            #     
+            #     self.segments[Name] = value
