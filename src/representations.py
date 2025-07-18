@@ -362,7 +362,16 @@ class GeometicRepresentation:
                         b_value = self.segments
 
 
-                        if True: pass
+                        if l_value and b_value and not c_value:
+                            c_name = ''.join(center)
+                            self.new_segment(c_name, b_value - (value + l_value))
+                        elif l_value and c_value and not b_value:
+                            b_name = ''.join(big)
+                            self.new_segment(b_name, value + c_value + l_value)
+                            
+                    
+                    for i in range(b, len(line)-1):
+                        for j in range(i, len(line))
             # sub_segments_indx = combinations(range(a_indx, b_indx+1), 2)
 # 
             # n_none = 0
