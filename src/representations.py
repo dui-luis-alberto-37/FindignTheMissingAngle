@@ -20,7 +20,8 @@ class GeometicRepresentation:
         
         #self.triangles_config = dict()
         
-        self.angles = dict()        
+        self.angles = dict()   
+        self.segments = defaultdict(None)     
         
         # self.lasts = {
         #     "line": 0,
@@ -248,7 +249,24 @@ class GeometicRepresentation:
                 self.angles[name] = value
             
             
-    def new_segment():pass
+    def new_segment(self, name, value):
+        A, B = name
+        points = self.points
+        assert (A in points) and (B in points), 'No se encontró el par de puntos'
             
+        name = frozenset(name)
+        self.segments[name] = value
+        line = (self.points_lines[A] & self.points_lines[B]).pop()
     
+    def segment_value_consistant(self, line):
+        line_points = self.lines_points(line)
+        to_check = dict()
         
+        for name, value in self.segments.items():
+            if len(name & line_points) == 2:
+                to_check[name] = value
+        
+        for AB, BC in combinations(to_check,2):
+            
+            if (AB & BC):
+                
