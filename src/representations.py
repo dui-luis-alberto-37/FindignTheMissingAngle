@@ -260,13 +260,48 @@ class GeometicRepresentation:
     
     def segment_value_consistant(self, line):
         line_points = self.lines_points(line)
-        to_check = dict()
+        to_check = []
+        new_segments = dict()
         
-        for name, value in self.segments.items():
+        for name in self.segments:
             if len(name & line_points) == 2:
-                to_check[name] = value
+                to_check.append(name)
         
-        for AB, BC in combinations(to_check,2):
+        
+        consistant_pair_check = list(combinations(to_check,2))
+        for AB, BC in consistant_pair_check:
+            AB_value = self.segments[AB]
+            BC_value = self.segments[BC]
             
+            sum_ = AB_value + BC_value
             if (AB & BC):
-                
+                AC = AB ^ BC
+                if AC_value := self.segments[AC]:
+                    assert AC_value == sum_, f'Inconsistencia: los segmentos {AB} y {BC}, suman distinto a {AC}'
+                else:
+                    self.segments[AC] = sum_
+                    new_to_check = [(AC, seg) for seg in to_check]
+                    to_check.append(AC)
+                    new_segments[AC] = sum
+            
+            else:
+                union = AB | BC
+                long_segment = set()
+                counter = 0
+                for point in line_points:
+                    if (point in union) and (counter % 3 == 0):
+                        counter += 1
+                        long_segment.add(point)
+                if value := self.segments[frozenset(long_segment)]:
+                    assert value > sum_, f'Inconsistencia: la suma de los segmentos {AB} + {BC} >= {long_segment}'
+                    #union - long_segment
+                    # TODO [] if line [ABCDE] separete the case: check AC and BD consistance from the ABCD consistance
+        
+        
+        
+        
+        # if no inconsistantce
+        for name, value in new_segments:
+            self.segments[name] = value
+        
+        return True
