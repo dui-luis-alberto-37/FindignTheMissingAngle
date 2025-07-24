@@ -289,14 +289,29 @@ class GeometicRepresentation:
                 long_segment = set()
                 counter = 0
                 for point in line_points:
-                    if (point in union) and (counter % 3 == 0):
-                        counter += 1
-                        long_segment.add(point)
+                    
+                    find_order = []
+                    
+                    if point in union:
+                        if counter % 3 == 0:
+                            counter += 1
+                            long_segment.add(point)
+                        find_order.append(point)    
+                        
+                    overlap = False
+                    
+                    
                 if value := self.segments[frozenset(long_segment)]:
+                    
+                    
+                    
+                    
+                    
                     assert value > sum_, f'Inconsistencia: la suma de los segmentos {AB} + {BC} >= {long_segment}'
                     #union - long_segment
                     # TODO [] if line [ABCDE] separete the case: check AC and BD consistance from the ABCD consistance
-        
+                    # in the first one assertion value < sum_ and the between is x = (sum_ - long)/2
+                    # in the secon one assertion value > sum_ and the between is x = long - sum_
         
         
         
