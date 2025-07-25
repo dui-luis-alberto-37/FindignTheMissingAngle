@@ -259,63 +259,85 @@ class GeometicRepresentation:
         line = (self.points_lines[A] & self.points_lines[B]).pop()
     
     def segment_value_consistant(self, line):
+        
+        # * Explanaiton: save all line points and known value segments in the line
         line_points = self.lines_points(line)
         to_check = []
-        new_segments = dict()
         
         for name in self.segments:
             if len(name & line_points) == 2:
                 to_check.append(name)
         
+        # * to validate new segments genertated
+        new_segments = dict()
         
-        consistant_pair_check = list(combinations(to_check,2))
+        # * These cases considered for each pair of known segments
+        # *     Case 1: Consecutive segments
+        # *     Case 2: Overlaped segments
+        # *     Case 3: Non consecutive segments
+        
+        consistant_pair_check = list(combinations(to_check,2)) # kinda queue
         for AB, BC in consistant_pair_check:
             AB_value = self.segments[AB]
             BC_value = self.segments[BC]
             
             sum_ = AB_value + BC_value
-            if (AB & BC):
+            
+            # TODO []: chance condition or manange a subcase for AB AC in a line ABC
+            if (AB & BC): # ? Intersenction means consecutives? R: not really || supposedly case 1
                 AC = AB ^ BC
                 if AC_value := self.segments[AC]:
-                    assert AC_value == sum_, f'Inconsistencia: los segmentos {AB} y {BC}, suman distinto a {AC}'
+                    assert AC_value == sum_, f'Inconsistencia: los segmentos {AB} + {BC} != {AC}'
                 else:
                     self.segments[AC] = sum_
                     new_to_check = [(AC, seg) for seg in to_check]
                     to_check.append(AC)
                     new_segments[AC] = sum
             
-            else:
+            else: # * No intersection means case 2 & 3
                 union = AB | BC
                 long_segment = set()
-                counter = 0
+                
+                # ? This shoud be out the if|else 
                 for point in line_points:
                     
                     find_order = []
                     
                     if point in union:
-                        if counter % 3 == 0:
-                            counter += 1
-                            long_segment.add(point)
-                        find_order.append(point)    
-                        
-                    overlap = False
+                        find_order.append(point)
                     
+                    long_segment.add(find_order[0])
+                    long_segment.add(find_order[-1])
+                        
                     
                 if value := self.segments[frozenset(long_segment)]:
                     
+                    # * Case 2 or 3 desition
+                    if ((first_2 := set(find_order[:2])) == AB) or (first_2 == BC):
+                        overlap = False
+                    else:
+                        overlap = True
+                    
+                    middle_segment = frozenset(find_order[1:3])
+                    
+                    if overlap: # * Case 2
+                        assert value < sum_, f'Inconsistencia: la suma de los segmentos {AB} + {BC} <= {long_segment}'
+                        self.segments[middle_segment] = (sum_ - value)/2
+                    else: # * Case 3
+                        assert value > sum_, f'Inconsistencia: la suma de los segmentos {AB} + {BC} >= {long_segment}'
+                        self.segments[middle_segment] = value - sum_
                     
                     
+                    # TODO []: *Recheck case 1
+                    # TODO []: *In cases 2 and 3, some verifications before add newsegmets
+                    # TODO []: *In cases 2 and 3, add new segmets paried to the paired queue.
                     
+                
                     
-                    assert value > sum_, f'Inconsistencia: la suma de los segmentos {AB} + {BC} >= {long_segment}'
-                    #union - long_segment
-                    # TODO [] if line [ABCDE] separete the case: check AC and BD consistance from the ABCD consistance
-                    # in the first one assertion value < sum_ and the between is x = (sum_ - long)/2
-                    # in the secon one assertion value > sum_ and the between is x = long - sum_
         
         
         
-        # if no inconsistantce
+        # * if no inconsistantce
         for name, value in new_segments:
             self.segments[name] = value
         
