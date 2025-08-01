@@ -277,38 +277,69 @@ class GeometicRepresentation:
         # *     Case 3: Non consecutive segments
         
         consistant_pair_check = list(combinations(to_check,2)) # kinda queue
-        for AB, BC in consistant_pair_check:
+        for AB, CD in consistant_pair_check:
             AB_value = self.segments[AB]
-            BC_value = self.segments[BC]
+            CD_value = self.segments[CD]
             
-            sum_ = AB_value + BC_value
+            sum_ = AB_value + CD_value
+            diff = abs(AB_value - CD_value)
             
-            # TODO []: chance condition or manange a subcase for AB AC in a line ABC
-            if (AB & BC): # ? Intersenction means consecutives? R: not really || supposedly case 1
-                AC = AB ^ BC
-                if AC_value := self.segments[AC]:
-                    assert AC_value == sum_, f'Inconsistencia: los segmentos {AB} + {BC} != {AC}'
-                else:
-                    self.segments[AC] = sum_
-                    new_to_check = [(AC, seg) for seg in to_check]
-                    to_check.append(AC)
-                    new_segments[AC] = sum
             
-            else: # * No intersection means case 2 & 3
-                union = AB | BC
-                long_segment = set()
+            
+            find_order = []
+            
+            union = AB | CD
+            intersect = AB & CD
+            
+            long_segment = set()
+            
+            for point in line_points:    
                 
-                # ? This shoud be out the if|else 
-                for point in line_points:
+                if point in union:
+                    find_order.append(point)
+                
+                long_segment.add(find_order[0])
+                long_segment.add(find_order[-1])
+                
+            
+            if intersect: # * CASE 1
+                
+                sym_diff = AB ^ CD
+                
+                # * case AB, BC
+                if sym_diff == long_segment:
                     
-                    find_order = []
+                    BC = CD
+                    AC = sym_diff
                     
-                    if point in union:
-                        find_order.append(point)
+                    if AC_value := self.segments[AC]:
+                        assert AC_value == sum_, f'Inconsistencia: los segmentos {AB} + {BC} != {AC}'
+                    else:
+                        #self.segments[AC] = sum_
+                        new_to_check = [(AC, seg) for seg in to_check]
+                        consistant_pair_check += new_to_check
+                        to_check.append(AC)
+                        new_segments[AC] = sum_
+                
+                
+                # TODO []: manange a subcase 1.2 for AB AC in a line ABC
+                # **DONE
+                # * case AB, AC then long_segment == AC
+                else:
+                    BC = sym_diff
                     
-                    long_segment.add(find_order[0])
-                    long_segment.add(find_order[-1])
+                    if BC_value := self.segments[BC]:
+                        assert BC_value == diff, f'Inconsistencia: los segmentos |{AB} - {CD}| != {BC}'
+                    else:
+                        new_to_check = [(BC, seg) for seg in to_check]
+                        consistant_pair_check += new_to_check
+                        to_check.append(BC)
+                        new_segments[BC] = diff
                         
+            
+            else: # * No intersection means case 2 or 3
+                
+                
                     
                 if value := self.segments[frozenset(long_segment)]:
                     
