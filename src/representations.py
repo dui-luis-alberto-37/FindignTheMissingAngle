@@ -32,12 +32,10 @@ class GeometicRepresentation:
         
         self.seg = '_segment'
         self.ang = '_angle'
-     
-     
-     
-     
-     
-     
+
+
+
+
     def _expand_line(self,key, nline):
         ''' when nline has at least 2 same points with line then this last one expand to coincide
             first by line order, then by nline'''
@@ -68,7 +66,7 @@ class GeometicRepresentation:
                 
         #print(line, nline)
         #print(index_l0, index_l1)
-       
+    
         if order_l0 != order_l1:
             '''Se usa si el orden no es el mismo'''
             
@@ -78,7 +76,7 @@ class GeometicRepresentation:
             
             #print(nline)
             #print(index_l1)
-         
+        
         last_i, last_j = 0, 0
         
         
@@ -252,10 +250,10 @@ class GeometicRepresentation:
     def new_segment(self, name, value):
         A, B = name
         points = self.points
-        assert (A in points) and (B in points), 'No se encontró el par de puntos'
-            
-        name = frozenset(name)
-        self.segments[name] = value
+        assert (A in points) and (B in points), f'Inconsistencia, No se encontró el par de puntos {set(name)}'
+        
+        AB = frozenset(name)
+        self.segments[AB] = value
         line = (self.points_lines[A] & self.points_lines[B]).pop()
     
     def segment_value_consistant(self, line):
@@ -275,6 +273,7 @@ class GeometicRepresentation:
         # *     Case 1: Consecutive segments
         # *     Case 2: Overlaped segments
         # *     Case 3: Non consecutive segments
+        # ?     Case 4? One inside the other
         
         consistant_pair_check = list(combinations(to_check,2)) # kinda queue
         for AB, CD in consistant_pair_check:
@@ -306,7 +305,7 @@ class GeometicRepresentation:
                 
                 sym_diff = AB ^ CD
                 
-                # * case AB, BC
+                # * Case 1.1 AB, BC
                 if sym_diff == long_segment:
                     
                     BC = CD
@@ -322,9 +321,7 @@ class GeometicRepresentation:
                         new_segments[AC] = sum_
                 
                 
-                # TODO []: manange a subcase 1.2 for AB AC in a line ABC
-                # **DONE
-                # * case AB, AC then long_segment == AC
+                # * Case 1.2 AB, AC
                 else:
                     BC = sym_diff
                     
@@ -341,35 +338,41 @@ class GeometicRepresentation:
                 
                 
                     
-                if value := self.segments[frozenset(long_segment)]:
+                if long_value := self.segments[frozenset(long_segment)]: 
                     
-                    # * Case 2 or 3 desition
-                    if ((first_2 := set(find_order[:2])) == AB) or (first_2 == BC):
+                    # * Case 2 or 3 decision
+                    if ((first_2 := set(find_order[:2])) == AB) or (first_2 == CD):
                         overlap = False
                     else:
                         overlap = True
                     
                     middle_segment = frozenset(find_order[1:3])
+                    middle_value = self.segments[middle_segment]
                     
-                    if overlap: # * Case 2
-                        assert value < sum_, f'Inconsistencia: la suma de los segmentos {AB} + {BC} <= {long_segment}'
-                        self.segments[middle_segment] = (sum_ - value)/2
-                    else: # * Case 3
-                        assert value > sum_, f'Inconsistencia: la suma de los segmentos {AB} + {BC} >= {long_segment}'
-                        self.segments[middle_segment] = value - sum_
+                    if overlap: # * CASE 2
+                        assert long_value < sum_, f'Inconsistencia: la suma de los segmentos {AB} + {CD} <= {long_segment}'
+                        if middle_value:
+                            assert middle_value == sum_ - long_value, f'Inconsistencia: la suma de los segmentos {AB} + {CD} - {long_segment} != {middle_segment}'
+                        else:
+                            new_to_check = [(middle_segment, seg) for seg in to_check]
+                            consistant_pair_check += new_to_check
+                            to_check.append(middle_segment)
+                            new_segments[middle_segment] = sum_ - long_value
+                            
                     
-                    
-                    # TODO []: *Recheck case 1
-                    # TODO []: *In cases 2 and 3, some verifications before add newsegmets
-                    # TODO []: *In cases 2 and 3, add new segmets paried to the paired queue.
-                    
-                
-                    
-        
+                    else: # * CASE 3
+                        assert long_value > sum_, f'Inconsistencia: la suma de los segmentos {AB} + {CD} >= {long_segment}'
+                        if middle_value:
+                            assert middle_value == long_value - sum_,  f'Inconsistencia: la suma de los segmentos  {long_segment} - ({AB} + {CD}) != {middle_segment}'
+                        else:
+                            new_to_check = [(middle_segment, seg) for seg in to_check]
+                            consistant_pair_check += new_to_check
+                            to_check.append(middle_segment)
+                            new_segments[middle_segment] = long_value - sum_
         
         
         # * if no inconsistantce
-        for name, value in new_segments:
-            self.segments[name] = value
+        for name, long_value in new_segments:
+            self.segments[name] = long_value
         
-        return True
+        # return True
