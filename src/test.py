@@ -1,5 +1,3 @@
-
-
 from representations import GeometicRepresentation as Geom
 
 G = Geom()

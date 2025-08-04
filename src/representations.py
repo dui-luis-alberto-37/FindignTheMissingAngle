@@ -21,7 +21,7 @@ class GeometicRepresentation:
         #self.triangles_config = dict()
         
         self.angles = dict()   
-        self.segments = defaultdict(None)     
+        self.segments = defaultdict(lambda:None)
         
         # self.lasts = {
         #     "line": 0,
@@ -253,21 +253,32 @@ class GeometicRepresentation:
         assert (A in points) and (B in points), f'Inconsistencia, No se encontró el par de puntos {set(name)}'
         
         AB = frozenset(name)
-        self.segments[AB] = value
         line = (self.points_lines[A] & self.points_lines[B]).pop()
-    
-    def segment_value_consistant(self, line):
+        if self.segment_value_consistance(line, AB, value):
+            return True
+        
+    def segment_value_consistance(self, line, name, value):
+
+        print(f'Adding {name}')
+        if self.segments[name] == value:
+            return True
+        # print(self.segments)
         
         # * Explanaiton: save all line points and known value segments in the line
-        line_points = self.lines_points(line)
-        to_check = []
+        line_points = self.lines_points[line]
+        to_check = [name]
+        new_segments = {
+            name: value
+        }
         
         for name in self.segments:
-            if len(name & line_points) == 2:
-                to_check.append(name)
+            # name = set(name)
+            if self.segments[name]:
+                if len(name & set(line_points)) == 2:
+                    to_check.append(name)
+        # print(to_check)
         
         # * to validate new segments genertated
-        new_segments = dict()
         
         # * These cases considered for each pair of known segments
         # *     Case 1: Consecutive segments
@@ -276,12 +287,23 @@ class GeometicRepresentation:
         # ?     Case 4? One inside the other
         
         consistant_pair_check = list(combinations(to_check,2)) # kinda queue
+        print(f'pairs : {consistant_pair_check}')
+
         for AB, CD in consistant_pair_check:
-            AB_value = self.segments[AB]
-            CD_value = self.segments[CD]
+            new_to_check = 'No new changes'
+            print(f'analizing {AB, CD}')
+            if AB in new_segments:
+                AB_value = new_segments[AB]
+            else:
+                AB_value = self.segments[AB]
+            if CD in new_segments:
+                CD_value = new_segments[CD]
+            else:
+                CD_value = self.segments[CD]
             
             sum_ = AB_value + CD_value
             diff = abs(AB_value - CD_value)
+            
             
             
             
@@ -297,9 +319,9 @@ class GeometicRepresentation:
                 if point in union:
                     find_order.append(point)
                 
-                long_segment.add(find_order[0])
-                long_segment.add(find_order[-1])
-                
+            long_segment.add(find_order[0])
+            long_segment.add(find_order[-1])
+            
             
             if intersect: # * CASE 1
                 
@@ -307,12 +329,15 @@ class GeometicRepresentation:
                 
                 # * Case 1.1 AB, BC
                 if sym_diff == long_segment:
+                    print('CASE 1.1')
                     
                     BC = CD
                     AC = sym_diff
                     
                     if AC_value := self.segments[AC]:
                         assert AC_value == sum_, f'Inconsistencia: los segmentos {AB} + {BC} != {AC}'
+                    elif AC in new_segments:
+                        assert new_segments[AC] == sum_, f'Inconsistencia: los segmentos {AB} + {BC} != {AC}'
                     else:
                         #self.segments[AC] = sum_
                         new_to_check = [(AC, seg) for seg in to_check]
@@ -323,10 +348,13 @@ class GeometicRepresentation:
                 
                 # * Case 1.2 AB, AC
                 else:
+                    print('CASE 1.2')
                     BC = sym_diff
                     
                     if BC_value := self.segments[BC]:
                         assert BC_value == diff, f'Inconsistencia: los segmentos |{AB} - {CD}| != {BC}'
+                    elif BC in new_segments:
+                        assert new_segments[BC] == diff, f'Inconsistencia: los segmentos {AB} + {BC} != {AC}'
                     else:
                         new_to_check = [(BC, seg) for seg in to_check]
                         consistant_pair_check += new_to_check
@@ -335,9 +363,8 @@ class GeometicRepresentation:
                         
             
             else: # * No intersection means case 2 or 3
+                # print('h')
                 
-                
-                    
                 if long_value := self.segments[frozenset(long_segment)]: 
                     
                     # * Case 2 or 3 decision
@@ -348,8 +375,13 @@ class GeometicRepresentation:
                     
                     middle_segment = frozenset(find_order[1:3])
                     middle_value = self.segments[middle_segment]
+                    if middle_segment in new_segments:
+                        middle_value = new_segments[middle_segment]
+                    
                     
                     if overlap: # * CASE 2
+                        print('CASE 2')
+
                         assert long_value < sum_, f'Inconsistencia: la suma de los segmentos {AB} + {CD} <= {long_segment}'
                         if middle_value:
                             assert middle_value == sum_ - long_value, f'Inconsistencia: la suma de los segmentos {AB} + {CD} - {long_segment} != {middle_segment}'
@@ -361,6 +393,8 @@ class GeometicRepresentation:
                             
                     
                     else: # * CASE 3
+                        
+                        print('CASE 3')
                         assert long_value > sum_, f'Inconsistencia: la suma de los segmentos {AB} + {CD} >= {long_segment}'
                         if middle_value:
                             assert middle_value == long_value - sum_,  f'Inconsistencia: la suma de los segmentos  {long_segment} - ({AB} + {CD}) != {middle_segment}'
@@ -369,10 +403,13 @@ class GeometicRepresentation:
                             consistant_pair_check += new_to_check
                             to_check.append(middle_segment)
                             new_segments[middle_segment] = long_value - sum_
+            
+            print(new_to_check)
         
         
         # * if no inconsistantce
-        for name, long_value in new_segments:
-            self.segments[name] = long_value
+        for name, value in new_segments.items():
+            self.segments[name] = value
         
-        # return True
+        return True
+    
