@@ -41,9 +41,6 @@ class GeometicRepresentation:
         self.ang = '_angle'
         self.changes = False
 
-
-
-
     def _expand_line(self,key, nline):
         ''' when nline has at least 2 same points with line then this last one expand to coincide
             first by line order, then by nline'''
@@ -129,27 +126,7 @@ class GeometicRepresentation:
         for point in nline:
             self.points_lines[point].add(f'l{last_l}')
             self.points.add(point)
-        self.changes = True
-    
-
-    def triangle_angle_consistance(self, name): # todo []
-        """Asserst that the internal angle sum of a triangle is 180 degrees."""
-        
-        #triangle = self.triangles_config[name]
-        #sum_ = 0
-        #
-        #for point in name:
-        #    sum_ += triangle[point+self.ang]
-        #
-        
-        angles = [''.join(angle) for angle in permutations(name, 3)]
-        
-        sum_ = 0
-        for angle in angles:
-            sum_ += self.angles[angle]
-        
-        return sum_ == 180 
-        
+        self.changes = True    
     
     def get_triagles(self):
         
@@ -186,7 +163,6 @@ class GeometicRepresentation:
         self.changes = False
         return self.triangles_names
 
-                        
     def _new_triangle(self, name:set):
         
         
@@ -240,8 +216,10 @@ class GeometicRepresentation:
             
         if l0_dir == 'l':
             L = l0_points[:c_ubi]
+            L_oposite = l0_points[c_ubi+1:]
         else:
             L = l0_points[c_ubi+1:]
+            L_oposite = l0_points[:c_ubi]
             
         
         l1_dir = 'r'
@@ -255,8 +233,10 @@ class GeometicRepresentation:
         
         if l1_dir == 'l':
             R = l1_points[:c_ubi]
+            R_oposite = l1_points[c_ubi+1:]
         else:
             R = l1_points[c_ubi+1:]
+            R_oposite = l1_points[:c_ubi]
             
         for l in L:
             for r in R:
@@ -264,13 +244,38 @@ class GeometicRepresentation:
                 
                 #self.angle[name][c+self.ang] = value
                 self.angles[name] = value
-
                 
                 self._add_angle_to_triangle(name, value)
-    
-    
-    def _add_angle_to_triangle(self, name, value):
         
+        for l in L_oposite:
+            for r in R_oposite:
+                name = l+c+r
+                
+                #self.angle[name][c+self.ang] = value
+                self.angles[name] = value
+                
+                self._add_angle_to_triangle(name, value)
+
+        for l in L_oposite:
+            for r in R:
+                name = l+c+r
+                
+                #self.angle[name][c+self.ang] = value
+                self.angles[name] = value
+                
+                self._add_angle_to_triangle(name, (-value)%180)
+
+        for l in L:
+            for r in R_oposite:
+                name = l+c+r
+                
+                #self.angle[name][c+self.ang] = value
+                self.angles[name] = value
+                
+                self._add_angle_to_triangle(name, (-value)%180)
+
+    def _add_angle_to_triangle(self, name, value):
+
         set_name = frozenset(name)
         triangle = self.triangles[set_name]
         l, c, r = name
@@ -279,7 +284,7 @@ class GeometicRepresentation:
         triangle['angles'][index] = value
         return True
 
-    def triangles_consistance(self):
+    def _triangles_consistance(self):
         
         if self.changes:
             triangles = self.get_triagles()
@@ -289,7 +294,17 @@ class GeometicRepresentation:
         for triangle in triangles:
             self.triangle_angle_consistance(triangle)
             
-            
+    def triangle_angle_consistance(self, name): # todo []
+        """Asserst that the internal angle sum of a triangle is 180 degrees."""
+        
+        triangle = self.triangles[name]
+        angles = triangle['angles']
+        
+        sum_ = 0
+        for angle in angles:
+            sum_ += self.angles[angle]
+        
+        return sum_ == 180 
             
     def new_segment(self, name, value): # ? lines should contain segment values??? 
         A, B = name
