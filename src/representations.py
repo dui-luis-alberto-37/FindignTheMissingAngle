@@ -275,7 +275,10 @@ class GeometicRepresentation:
                 self._add_angle_to_triangle(name, (-value)%180)
 
     def _add_angle_to_triangle(self, name, value):
-
+        
+        if value >= 180:
+            return False
+        
         set_name = frozenset(name)
         triangle = self.triangles[set_name]
         l, c, r = name
@@ -300,11 +303,22 @@ class GeometicRepresentation:
         triangle = self.triangles[name]
         angles = triangle['angles']
         
-        sum_ = 0
-        for angle in angles:
-            sum_ += self.angles[angle]
+        if angles.count(None) >= 2:
+            return None
+        elif angles.count(None) == 1:
+            index = angles.index(None)
+            sum_ = angles[(index + 1)%3] + angles[(index + 2)%3]
+            value = 180 - sum_
+            
+            if value <= 0:
+                name = triangle['name']
+                print(f'Error in the triangle {name}: the angles in {name[(index + 1)%3]} and {name[(index + 2)%3]} sums {sum_}°')
+                return False
+            
+            angles[index] = value
         
-        return sum_ == 180 
+        sum_ = sum(angles)
+        assert sum_ == 180, f'Error: the angles sum of {name} is not 180°'
             
     def new_segment(self, name, value): # ? lines should contain segment values??? 
         A, B = name
