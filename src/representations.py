@@ -17,6 +17,13 @@ class GeometicRepresentation:
         #self.lines = set()
         
         self.triangles_names = set()
+        self.triangles = defaultdict(lambda:{'name': None,
+                                            'angles': [None for _ in range(3)],
+                                            'segments': [None for _ in range(3)],
+                                            'equilatero': False,
+                                            'isoseles': False,
+                                            'rectangular': False,
+                                            'unwrited':True})
         
         #self.triangles_config = dict()
         
@@ -32,6 +39,7 @@ class GeometicRepresentation:
         
         self.seg = '_segment'
         self.ang = '_angle'
+        self.changes = False
 
 
 
@@ -99,17 +107,16 @@ class GeometicRepresentation:
         
         return None
     
-    def add_line(self, nline: list,):      # posible change: triangle generation with each new line
+    def add_line(self, nline: list,):      # ? posible change: triangle generation with each new line
         """Add a line to the geometric representation."""
         
         '''Check if the line is already in the representation. If it is, return None.'''
         for key, line in self.lines_points.items():
             if len(set(nline) & set(line)) >= 2:
                 print(f"Line {key} already exists, now expanding.")
-                self._expand_line(key, nline)                
+                self._expand_line(key, nline)     
+                self.changes = True           
                 return None
-
-        
         
         # last_l = self.lasts["line"]
         last_l = self.last_l
@@ -122,10 +129,10 @@ class GeometicRepresentation:
         for point in nline:
             self.points_lines[point].add(f'l{last_l}')
             self.points.add(point)
-            
-            
+        self.changes = True
+    
 
-    def triangle_internal_sum(self, name):
+    def triangle_angle_consistance(self, name): # todo []
         """Asserst that the internal angle sum of a triangle is 180 degrees."""
         
         #triangle = self.triangles_config[name]
@@ -149,6 +156,10 @@ class GeometicRepresentation:
         """Get the triangles from the geometric representation."""
         
         # new_triangles = set()
+
+        if not self.changes:
+            print('No new triangles to add')
+            return self.triangles_names
         
         lines = self.lines_points.values()
         for line in lines:
@@ -158,16 +169,21 @@ class GeometicRepresentation:
                 a, b = colineal_pair
                 for point in non_colineal:
                     c = point
-                    triangle = frozenset([a,b,c])
+                    triangle_name = frozenset([a,b,c])
                     # if triangle not in self.triangles_names:
-                    #     new_triangles.add(triangle)
-                    self.triangles_names.add(triangle)
+                    #     new_triangles.add(triangle) #* No need bc is a set
                     
+                    self.triangles_names.add(triangle_name)
+
+                    triangle = self.triangles[triangle_name]
+                    if triangle['unwrite'] == False:
+                        triangle['name'] = list[triangle_name]
+                        triangle['unwrite'] == False
         
         # for triangle in new_triangles:
         #     self.triangles_config[triangle] = self._new_triangle(triangle)
         
-        
+        self.changes = False
         return self.triangles_names
 
                         
@@ -193,6 +209,9 @@ class GeometicRepresentation:
     
     def new_angle(self, name, value):
         
+        if self.angles[name] == value:
+            print('The angle already has that value')
+            return None
         l, c, r = name
         
         
@@ -203,16 +222,16 @@ class GeometicRepresentation:
         print(str(l0_key))
         
         
-        lines = self.lines_points
+        points = self.lines_points
         
-        l0 = lines[l0_key]
-        l1 = lines[l1_key]
-        print(lines)
+        l0_points = points[l0_key]
+        l1_points = points[l1_key]
+        print(points)
         
         
         l0_dir = 'r'
         c_ubi = None
-        for i, point in enumerate(l0):
+        for i, point in enumerate(l0_points):
             if point == l:
                 l0_dir = 'l'
             elif point == c:
@@ -220,14 +239,14 @@ class GeometicRepresentation:
                 break
             
         if l0_dir == 'l':
-            L = l0[:c_ubi]
+            L = l0_points[:c_ubi]
         else:
-            L = l0[c_ubi+1:]
+            L = l0_points[c_ubi+1:]
             
         
         l1_dir = 'r'
         c_ubi = None
-        for i, point in enumerate(l1):
+        for i, point in enumerate(l1_points):
             if point == r:
                 l1_dir = 'l'
             elif point == c:
@@ -235,9 +254,9 @@ class GeometicRepresentation:
                 break
         
         if l1_dir == 'l':
-            R = l1[:c_ubi]
+            R = l1_points[:c_ubi]
         else:
-            R = l1[c_ubi+1:]
+            R = l1_points[c_ubi+1:]
             
         for l in L:
             for r in R:
@@ -245,9 +264,21 @@ class GeometicRepresentation:
                 
                 #self.angle[name][c+self.ang] = value
                 self.angles[name] = value
+    
+
+    def triangles_consistance(self):
+        
+        if self.changes:
+            triangles = self.get_triagles()
+        else: 
+            triangles = self.triangles_names
+        
+        for triangle in triangles:
+            self.triangle_angle_consistance(triangle)
             
             
-    def new_segment(self, name, value):
+            
+    def new_segment(self, name, value): # ? lines should contain segment values??? 
         A, B = name
         points = self.points
         assert (A in points) and (B in points), f'Inconsistencia, No se encontró el par de puntos {set(name)}'
