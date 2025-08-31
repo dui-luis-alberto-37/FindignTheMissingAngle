@@ -264,7 +264,20 @@ class GeometicRepresentation:
                 
                 #self.angle[name][c+self.ang] = value
                 self.angles[name] = value
+
+                
+                self._add_angle_to_triangle(name, value)
     
+    
+    def _add_angle_to_triangle(self, name, value):
+        
+        set_name = frozenset(name)
+        triangle = self.triangles[set_name]
+        l, c, r = name
+        name = triangle['name']
+        index = name.index(c)
+        triangle['angles'][index] = value
+        return True
 
     def triangles_consistance(self):
         
