@@ -319,6 +319,16 @@ class GeometicRepresentation:
         
         sum_ = sum(angles)
         assert sum_ == 180, f'Error: the angles sum of {name} is not 180°'
+        
+        if n:=len(set(angles)) < 3:
+            triangle['isoseles'] = True
+            if n == 1:
+                triangle['equilatero'] = True
+            
+        if 90 in angles:
+            triangle['rectangular'] = True
+        
+        return True
             
     def new_segment(self, name, value): # ? lines should contain segment values??? 
         A, B = name
@@ -483,6 +493,21 @@ class GeometicRepresentation:
         # * if no inconsistantce
         for name, value in new_segments.items():
             self.segments[name] = value
-        
+            self._add_segment_to_triangles(name, value)
         return True
-    
+
+    def _add_segment_to_triangles(self, seg, value):
+        
+        A, B = seg
+        line = self.points_lines[A] & self.points_lines[B]
+
+        colineal_points = self.lines_points[line]
+        non_conlineal_p = self.points - set(colineal_points)
+
+        for C in non_conlineal_p:
+            name = frozenset([A,B,C])
+            triangle = self.triangles[name]
+            name = triangle['name']
+            index = name.index(C)
+            triangle['segments'][index] = value
+        
