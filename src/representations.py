@@ -162,25 +162,25 @@ class GeometicRepresentation:
         self.changes = False
         return self.triangles_names
 
-    def _new_triangle(self, name:set):                          # * sub function for get_triangles
-        
-        
-        triangle = {
-            'name' : name,
-        }
-        
-        seg = self.seg
-        angle = self.ang
-        
-        segmentes = combinations(name, 2)
-        
-        for point, segment in zip(name, segmentes):
-            
-            segment = ''.join(segment)
-            triangle[point+angle] = None
-            triangle[segment+seg] = None
-        
-        return triangle
+    # def _new_triangle(self, name:set):                          # * sub function for get_triangles
+        # 
+        # 
+        # triangle = {
+            # 'name' : name,
+        # }
+        # 
+        # seg = self.seg
+        # angle = self.ang
+        # 
+        # segmentes = combinations(name, 2)
+        # 
+        # for point, segment in zip(name, segmentes):
+            # 
+            # segment = ''.join(segment)
+            # triangle[point+angle] = None
+            # triangle[segment+seg] = None
+        # 
+        # return triangle
 
     def new_angle(self, name, value):                       # ! generative while making seems done
         
@@ -556,7 +556,7 @@ class GeometicRepresentation_v2:
         self.ang = '_angle'
         self.changes = False
     
-    def _replece_line(self, key, line, nline):              # todo []
+    def _replece_line(self, key, line, nline):              # * done:
         l1 = set(line)
         l2 = set(nline)
         
@@ -572,7 +572,7 @@ class GeometicRepresentation_v2:
         print(f'The line {key}:{line} was replaced with {nline}')
         return True
     
-    def add_line(self, nline: list,):                       # ? posible change: triangle generation with each new line
+    def add_line(self, nline: list,):                       # * done:
         '''Add a line to the geometric representation.'''
         
         '''Check if the line is already in the representation. If it is, return None.'''
@@ -601,7 +601,7 @@ class GeometicRepresentation_v2:
         self.changes = True    
         return True
     
-    def get_triagles(self):                                 # * done for both
+    def get_triagles(self):                                 # * done:
         
         """Get the triangles from the geometric representation."""
         
@@ -636,29 +636,10 @@ class GeometicRepresentation_v2:
         self.changes = False
         return self.triangles_names
 
-    def _new_triangle(self, name:set):                          # * sub function for get_triangles
-        
-        
-        triangle = {
-            'name' : name,
-        }
-        
-        seg = self.seg
-        angle = self.ang
-        
-        segmentes = combinations(name, 2)
-        
-        for point, segment in zip(name, segmentes):
-            
-            segment = ''.join(segment)
-            triangle[point+angle] = None
-            triangle[segment+seg] = None
-        
-        return triangle
-
-    def new_angle(self, name, value):                       # ! generative while making seems done
+    def new_angle(self, name, value):                       # * done:
         
         if value >= 180:
+            print('Ingrese solo angulos menores de 180°')
             return None
         
         if self.angles[name] == value:
@@ -722,34 +703,6 @@ class GeometicRepresentation_v2:
                 
                 self._add_angle_to_triangle(name, value)
         
-        # opposite at the vertex: same value
-        for l in L_oposite:
-            for r in R_oposite:
-                name = l+c+r
-                
-                #self.angle[name][c+self.ang] = value
-                self.angles[name] = value
-                
-                self._add_angle_to_triangle(name, value)
-        
-        # suplenmentary
-        for l in L_oposite:
-            for r in R:
-                name = l+c+r
-                
-                #self.angle[name][c+self.ang] = value
-                self.angles[name] = value
-                
-                self._add_angle_to_triangle(name, (-value)%180)
-        
-        for l in L:
-            for r in R_oposite:
-                name = l+c+r
-                
-                #self.angle[name][c+self.ang] = value
-                self.angles[name] = value
-                
-                self._add_angle_to_triangle(name, (-value)%180)
         return True
     
     def _add_angle_to_triangle(self, name, value):              # * sub function for new_angle
@@ -762,7 +715,7 @@ class GeometicRepresentation_v2:
         triangle['angles'][index] = value
         return True
     
-    def actualize_triagles(self):                           # * done for both
+    def actualize_triagles(self):                           # * done
         
         if self.changes:
             
@@ -836,140 +789,18 @@ class GeometicRepresentation_v2:
             name: value
         }
         
-        for name in self.segments:
-            # name = set(name)
-            if self.segments[name]:
-                if len(name & set(line_points)) == 2:
-                    to_check.append(name)
-        # print(to_check)
+        ading = 0
+        inside_points = []
+        for point in line_points:
+            if point in name:
+                ading = (ading+1)%2
+            if ading:
+                inside_points.append(point)
+        
+        
         
         # * to validate new segments genertated
         
-        # * These cases considered for each pair of known segments
-        # *     Case 1: Consecutive segments
-        # *     Case 2: Overlaped segments
-        # *     Case 3: Non consecutive segments
-        # ?     Case 4? One inside the other
-        
-        consistant_pair_check = list(combinations(to_check,2)) # kinda queue
-        print(f'pairs : {consistant_pair_check}')
-
-        for AB, CD in consistant_pair_check:
-            new_to_check = 'No new changes'
-            print(f'analizing {AB, CD}')
-            if AB in new_segments:
-                AB_value = new_segments[AB]
-            else:
-                AB_value = self.segments[AB]
-            if CD in new_segments:
-                CD_value = new_segments[CD]
-            else:
-                CD_value = self.segments[CD]
-            
-            sum_ = AB_value + CD_value
-            diff = abs(AB_value - CD_value)
-            
-            
-            
-            
-            find_order = []
-            
-            union = AB | CD
-            intersect = AB & CD
-            
-            long_segment = set()
-            
-            for point in line_points:    
-                
-                if point in union:
-                    find_order.append(point)
-                
-            long_segment.add(find_order[0])
-            long_segment.add(find_order[-1])
-            
-            
-            if intersect: # * CASE 1
-                
-                sym_diff = AB ^ CD
-                
-                # * Case 1.1 AB, BC
-                if sym_diff == long_segment:
-                    print('CASE 1.1')
-                    
-                    BC = CD
-                    AC = sym_diff
-                    
-                    if AC_value := self.segments[AC]:
-                        assert AC_value == sum_, f'Inconsistencia: los segmentos {AB} + {BC} != {AC}'
-                    elif AC in new_segments:
-                        assert new_segments[AC] == sum_, f'Inconsistencia: los segmentos {AB} + {BC} != {AC}'
-                    else:
-                        #self.segments[AC] = sum_
-                        new_to_check = [(AC, seg) for seg in to_check]
-                        consistant_pair_check += new_to_check
-                        to_check.append(AC)
-                        new_segments[AC] = sum_
-                
-                
-                # * Case 1.2 AB, AC
-                else:
-                    print('CASE 1.2')
-                    BC = sym_diff
-                    
-                    if BC_value := self.segments[BC]:
-                        assert BC_value == diff, f'Inconsistencia: los segmentos |{AB} - {CD}| != {BC}'
-                    elif BC in new_segments:
-                        assert new_segments[BC] == diff, f'Inconsistencia: los segmentos {AB} + {BC} != {AC}'
-                    else:
-                        new_to_check = [(BC, seg) for seg in to_check]
-                        consistant_pair_check += new_to_check
-                        to_check.append(BC)
-                        new_segments[BC] = diff
-                        
-            
-            else: # * No intersection means case 2 or 3
-                # print('h')
-                
-                if long_value := self.segments[frozenset(long_segment)]: 
-                    
-                    # * Case 2 or 3 decision
-                    if ((first_2 := set(find_order[:2])) == AB) or (first_2 == CD):
-                        overlap = False
-                    else:
-                        overlap = True
-                    
-                    middle_segment = frozenset(find_order[1:3])
-                    middle_value = self.segments[middle_segment]
-                    if middle_segment in new_segments:
-                        middle_value = new_segments[middle_segment]
-                    
-                    
-                    if overlap: # * CASE 2
-                        print('CASE 2')
-
-                        assert long_value < sum_, f'Inconsistencia: la suma de los segmentos {AB} + {CD} <= {long_segment}'
-                        if middle_value:
-                            assert middle_value == sum_ - long_value, f'Inconsistencia: la suma de los segmentos {AB} + {CD} - {long_segment} != {middle_segment}'
-                        else:
-                            new_to_check = [(middle_segment, seg) for seg in to_check]
-                            consistant_pair_check += new_to_check
-                            to_check.append(middle_segment)
-                            new_segments[middle_segment] = sum_ - long_value
-                            
-                    
-                    else: # * CASE 3
-                        
-                        print('CASE 3')
-                        assert long_value > sum_, f'Inconsistencia: la suma de los segmentos {AB} + {CD} >= {long_segment}'
-                        if middle_value:
-                            assert middle_value == long_value - sum_,  f'Inconsistencia: la suma de los segmentos  {long_segment} - ({AB} + {CD}) != {middle_segment}'
-                        else:
-                            new_to_check = [(middle_segment, seg) for seg in to_check]
-                            consistant_pair_check += new_to_check
-                            to_check.append(middle_segment)
-                            new_segments[middle_segment] = long_value - sum_
-            
-            print(new_to_check)
         
         
         # * if no inconsistantce
