@@ -45,3 +45,7 @@ print()
 print()
 
 print(f'angles = {G.angles}')
+
+
+# new segment test 0: [('A', 'D'), ('C', 'E'), ('B', 'D'), ('B', 'C'),
+# ('D', 'E'), ('A', 'B'), ('B', 'E'), ('A', 'E'), ('A', 'C'), ('C', 'D')]
