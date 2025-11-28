@@ -520,7 +520,7 @@ class GeometicRepresentation:
             triangle['segments'][index] = value
 
 
-class GeometicRepresentation_v2:
+class GeometicRepresentation_v2: # this version doesn't generates predicted values, just checks for no geometrical errors
     
     def __init__(self, name: str = None):
         #self.name = name
@@ -555,6 +555,9 @@ class GeometicRepresentation_v2:
         self.seg = '_segment'
         self.ang = '_angle'
         self.changes = False
+        
+        self.line_value_changed = set()
+        self.line_point_changed = set()
     
     def _replece_line(self, key, line, nline):              # * done:
         l1 = set(line)
@@ -569,6 +572,7 @@ class GeometicRepresentation_v2:
         
         self.changes = True
         self.lines_points[key] = nline
+        self.line_point_changed.add(key)
         print(f'The line {key}:{line} was replaced with {nline}')
         return True
     
@@ -589,8 +593,8 @@ class GeometicRepresentation_v2:
         
         # last_l = self.lasts["line"]
         last_l = self.last_l
-        
-        self.lines_points[f'l{last_l}'] = nline
+        key = f'l{last_l}'
+        self.lines_points[key] = nline
         
         # self.lasts["line"] += 1
         self.last_l += 1
@@ -598,7 +602,8 @@ class GeometicRepresentation_v2:
         for point in nline:
             self.points_lines[point].add(f'l{last_l}')
             self.points.add(point)
-        self.changes = True    
+        self.changes = True
+        self.line_point_changed.add(key)
         return True
     
     def get_triagles(self):                                 # * done:
@@ -764,16 +769,9 @@ class GeometicRepresentation_v2:
             
         return True
     
-    def new_segment(self, name, value):                     # ? lines should contain segment values??? 
-        #                                         done: work for both versions
-        A, B = name
-        points = self.points
-        assert (A in points) and (B in points), f'Inconsistencia, No se encontró el par de puntos {set(name)}'
+    def new_segment(self, name, value):
+        self.segments[frozenset(name)] = value
         
-        AB = frozenset(name)
-        line = (self.points_lines[A] & self.points_lines[B]).pop()
-        if self.segment_value_consistance(line, AB, value):
-            return True
         
     def segment_value_consistance(self, line, name, value): # todo: needs to be change for v.2
 
@@ -808,6 +806,17 @@ class GeometicRepresentation_v2:
             self.segments[name] = value
             self._add_segment_to_triangles(name, value)
         return True
+    
+        # * workflow for line (no recursive)
+        # * all size one are considered consistence,
+        consisted_seg_values = {}
+        for i in range(len(line_points)):
+            one_name = frozenset([line_points[i], line_points[i+1]])
+            consisted_seg_values[one_name] = self.segment_value_consistance
+        # * we exend the size one in all but last and check inside till we got the line
+        # * we just check the halves, since the insides are checked it should work
+        # * each we belive is done we add it to a global dic
+        
 
     def _add_segment_to_triangles(self, seg, value):        # done: work for both versions
         
