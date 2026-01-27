@@ -54,7 +54,7 @@ class SemiDummyGeom:
       points = list(points)
       for k, line in self.lines:
          intesec = set(line) & set(points)
-         if len(intesec) == 2:
+         if len(intesec) >= 2:
             del self.lines[k]
             for point in line:
                self.points = self.points - set(line)
@@ -64,18 +64,6 @@ class SemiDummyGeom:
       self.lines[key] = points
       for point in points:
          self.points.add(point)
-   
-   def new_angles(self, name:str, value):
-      if len(name) != 3:
-         raise ValueError("El nombre tiene que tener 3 caracteres que sirvan de puntos.")
-      if value <= 0:
-         raise ValueError("Los angulos deben ser positivos.")
-      if value >= 180:
-         raise ValueError("Los angulos deben ser menores a 180.")
-      else:
-         self.angles[name] = value
-         name_fs = frozenset(name)
-         self.triangles[name_fs].angles[name[1]] = value
          
    def new_segment(self, name:str, value):
       if value <= 0:
@@ -87,4 +75,19 @@ class SemiDummyGeom:
       for triangle in triangles_with_seg:
          self.triangles[triangle] = SemiDummyTriangle(triangle)
          self.triangles[triangle].segments[name] = value
+   
+   def new_angles(self, name:str, value):
+      if len(name) != 3:
+         raise ValueError("El nombre tiene que tener 3 caracteres que sirvan de puntos.")
+      if value <= 0:
+         raise ValueError("Los angulos deben ser positivos.")
+      if value >= 180:
+         raise ValueError("Los angulos deben ser menores a 180.")
+      if set(name) & self.points != set(name):
+         raise ValueError("Los puntos deven ser puntos existentes")
+      else:
+         self.angles[name] = value
+         triangle_name = frozenset(name)
+         self.triangles[triangle_name].angles[name[1]] = value
+   
    
