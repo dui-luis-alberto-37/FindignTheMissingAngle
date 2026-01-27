@@ -1,4 +1,5 @@
 # [[V1_Total validation_Asserts validation before adding]]
 # [[V2_Semi-Validate_Ask function is_valid()]]
-# [[V3_Semi-Dumi_Validate only the basic in the constructor]]
-# [[V4_Dumi_Accept any value without validation]]
+# [[V3_Semi-Dummy_Validate only the basic in the constructor]]
+# [[V4_Dummy_Accept any value without validation]]
+[[Global notes]]
