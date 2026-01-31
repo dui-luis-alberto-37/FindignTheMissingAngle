@@ -6,6 +6,7 @@
       {
         "id": "7077674541380067",
         "type": "tabs",
+        "dimension": 61.36363636363637,
         "children": [
           {
             "id": "90c9531688b2166b",
@@ -50,7 +51,7 @@
             }
           },
           {
-            "id": "5164630cc59bc5e8",
+            "id": "a0a51e015218364b",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -62,28 +63,29 @@
               "icon": "lucide-file",
               "title": "V1_Total validation_Asserts validation before adding"
             }
-          }
-        ],
-        "currentTab": 1
-      },
-      {
-        "id": "17638703730fa548",
-        "type": "tabs",
-        "children": [
+          },
           {
-            "id": "e4befc2bfbbd1a9a",
+            "id": "9b42722cfe697164",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Conflicts/Line conflicts.md",
+                "file": "Versions/SegmentTree.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Line conflicts"
+              "title": "SegmentTree"
             }
-          },
+          }
+        ],
+        "currentTab": 2
+      },
+      {
+        "id": "17638703730fa548",
+        "type": "tabs",
+        "dimension": 38.63636363636363,
+        "children": [
           {
             "id": "1afed18ffbc4a3ad",
             "type": "leaf",
@@ -113,13 +115,29 @@
             }
           },
           {
-            "id": "8f0c383d07c89912",
+            "id": "bb4bb43defaf1dd9",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "image",
+              "state": {
+                "file": "segment_tree_visual.png"
+              },
+              "icon": "lucide-image",
+              "title": "segment_tree_visual"
+            }
+          },
+          {
+            "id": "cbd754ccfbdd6dbc",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Global notes.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Global notes"
             }
           }
         ],
@@ -194,8 +212,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "de864cc50c8c641a",
@@ -274,12 +291,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Versions/V3_Semi-Dummy_Validate only the basic in the constructor.md",
+                "file": "Versions/SegmentTree.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from V3_Semi-Dummy_Validate only the basic in the constructor"
+              "title": "Outgoing links from SegmentTree"
             }
           }
         ]
@@ -300,23 +317,26 @@
       "bases:Create new base": false
     }
   },
-  "active": "32b64b105018fd05",
+  "active": "75532d1cd11fafff",
   "lastOpenFiles": [
-    "Conflicts/Angle conflicts.md",
     "Versions/V3_Semi-Dummy_Validate only the basic in the constructor.md",
-    "Conflicts/Line conflicts.md",
-    "Versions/V1_Total validation_Asserts validation before adding.md",
     "Versions/V2_Semi-Validate_Ask function is_valid().md",
-    "Conflicts/Segment conflicts.md",
+    "Versions/V1_Total validation_Asserts validation before adding.md",
+    "Versions/SegmentTree.md",
+    "Conflicts/SegmentTree conflicts.md",
+    "Untitled.base",
+    "segment_tree_visual.png",
     "Global notes.md",
+    "Conflicts/Angle conflicts.md",
+    "Conflicts/Segment conflicts.md",
+    "Versions/V4_Dummy_Accept any value without validation.md",
+    "Conflicts/SegmentTree Canvas.canvas",
+    "Conflicts/Line conflicts.md",
     "Finding the missing angle.md",
     "Versions",
     "Untitled 1",
     "Conflicts",
-    "Versions/V4_Dummy_Accept any value without validation.md",
-    "Untitled.canvas",
     "Untitled 1.base",
-    "Untitled.base",
     "create a link.md",
     "Welcome.md"
   ]

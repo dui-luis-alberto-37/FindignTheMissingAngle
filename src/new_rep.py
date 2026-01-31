@@ -1,3 +1,5 @@
+import math
+
 class DummyGeom:
    def __init__(self):
       self.lines = dict()
@@ -53,17 +55,15 @@ class SemiDummyGeom:
    def new_line(self, key:str, points:list):
       points = list(points)
       for k, line in self.lines:
-         intesec = set(line) & set(points)
-         if len(intesec) >= 2:
+         intersec = set(line) & set(points)
+         if len(intersec) >= 2:
             del self.lines[k]
-            for point in line:
-               self.points = self.points - set(line)
-            print(f'La linea {k}:{line} será remplazada por la linea {key}:{points} debido a que comparten los siguientes puntos {intesec}')
+            self.points = self.points - set(line)
+            print(f'La linea {k}:{line} será remplazada por la linea {key}:{points} debido a que comparten los siguientes puntos {intersec}')
             break
       
       self.lines[key] = points
-      for point in points:
-         self.points.add(point)
+      self.points = self.points | set(points)
          
    def new_segment(self, name:str, value):
       if value <= 0:
@@ -90,4 +90,181 @@ class SemiDummyGeom:
          triangle_name = frozenset(name)
          self.triangles[triangle_name].angles[name[1]] = value
    
+class Node:
+   def __init__(self, name, max_ = math.inf, min_ = 0, value = None, rparent = None, lparent = None):
+      self.name = name
+      self.max = max_
+      self.min = min_
+      if value:
+         assert value > 0, 'El valor debe ser mayor a 0'
+      self.value = value
+      self.left = None
+      self.right = None
+      self.rparent = rparent
+      self.lparent = lparent
    
+class GeomSegmentTree:
+   def __init__(self, line):
+      self.line = line
+      self.segments = dict()
+      self._getsegments()
+      
+      self.root = self.line[0] + self.line[-1]
+      self.leafs = [line[i:i+2] for i in range(len(line)-1)]
+   
+   def print_tree(self):
+      parents = [self.root]
+      while parents:
+         print(parents)
+         leafs = set()
+         for parent in parents:
+            print(self.segments[parent].name,':', self.segments[parent].min, '-', self.segments[parent].value,'-', self.segments[parent].max, sep='\t')
+            
+            left = self.segments[parent].left
+            right = self.segments[parent].right
+            if left:
+               leafs.add(left)
+            if right:
+               leafs.add(right)
+         print()
+         parents = leafs
+   
+   def _getsegments(self):
+      line = self.line
+      
+      leafs = [line[i:i+2] for i in range(len(line)-1)]
+      for v in leafs:
+         self.segments[v] = Node(v)
+      
+      while len(leafs) > 1:
+         # print(leafs)
+         leafs = [self.parent(leafs[i], leafs[i+1]) for i in range(len(leafs)-1)]
+      # print(leafs)
+   
+   def parent(self, l, r):
+      p_name = l[0] + r[-1]
+      p = self.segments[p_name] = Node(p_name)
+      p.left = l
+      p.right = r
+      self.segments[l].rparent = p_name
+      self.segments[r].lparent = p_name
+      return p_name
+   
+   def set_value(self, name, value, auto_prop = False):
+      v = self.segments[name]
+      v.value = value
+      v.max = value
+      v.min = value
+      
+      if auto_prop:
+         self.min_propagation(name)
+         self.max_propagation(name)
+   
+   def max_propagation(self, from_ = None):
+      # print('max from:',from_)
+      if from_:
+         parents = [from_]
+      else:
+         parents = [self.root]
+      leafs = set()
+      for parent in parents:
+         leafs.add(self.segments[parent].left)
+         leafs.add(self.segments[parent].right)
+      
+      while leafs:
+         # print(leafs)
+         new_leafs = set()
+         for leaf in leafs:
+            v = self.segments[leaf]
+            if v.lparent:
+               lp = self.segments[v.lparent]
+            else:
+               lp = Node('__')
+            if v.rparent:
+               rp = self.segments[v.rparent]
+            else:
+               rp = Node('__')
+            max_ = min(lp.max, rp.max)
+            if v.value:
+               assert v.value < max_, f'El segmento {leaf} no puede tener valor {v.value} pues los segmentos {lp.name} y {rp.name} tienen valores maximos de {lp.max} y {rp.max} respectivamente'
+            else:
+               assert v.min < max_, f'El segmento {leaf} no puede tener valor debido a que el mínimo valor esperado es {v.min} y el máximo es {max_}'
+               v.max = max_
+               if v.max == v.min:
+                  v.value = v.max
+            # print(v.left, v.name, v.right)
+            if v.left:
+               new_leafs.add(v.left)
+            if v.right:
+               new_leafs.add(v.right)
+         leafs = new_leafs
+      return True
+   
+   def min_propagation(self, from_ = None):
+      # print('min from:',from_)
+      
+      if from_:
+         leafs = [from_]
+      else:
+         leafs = self.leafs
+      
+      parents = set()
+      for leaf in leafs:
+         v = self.segments[leaf]
+         if v.rparent:
+            parents.add(v.rparent)
+         if v.lparent:
+            parents.add(v.lparent)
+      
+      while parents:
+         # print(parents)
+         new_parents = set()
+         for parent in parents:
+            v = self.segments[parent]
+            # print(v.name, v.value)
+            left = self.segments[v.left]
+            right = self.segments[v.right]
+            min_ = max(left.min, right.min)
+            if v.value:
+               assert v.value > min_, f'El segmento {parent} no puede tener valor {v.value} pues los segmentos {left.name} y {right.name} tienen valores {left.min} y {right.min} respectivamente'
+               continue
+            else:
+               assert v.max >= min_, f'El segmento {parent} no puede tener valor debido a que el máximo valor esperado es {v.max} y el mínimo es {min_}'
+               v.min = min_
+               if v.min == v.max:
+                  v.value = v.min
+            if v.rparent:
+               new_parents.add(v.rparent)
+            if v.lparent:
+               new_parents.add(v.lparent)
+         parents = new_parents
+      return True
+   
+   def is_valid(self):
+      return self.max_propagation() ^ self.min_propagation()
+class SemiValidateGeom:
+   def __init__(self):
+      print('''Antes de agregar valores de segmentos y angulos asegurate de colocar 
+            todos los puntos y lineas''')
+      self.lines = dict()
+      self.points = set()
+      self.angles = dict()
+      self.segments = dict()
+      self.triangles = dict()
+      self.theres_changes = False
+   
+   def new_line(self, key:str, points:list):
+      points = list(points)
+      for k, line in self.lines:
+         intersec = set(line) & set(points)
+         if len(intersec) >= 2:
+            del self.lines[k]
+            self.points = self.points - set(line)
+            print(f'La linea {k}:{line} será remplazada por la linea {key}:{points} debido a que comparten los siguientes puntos {intersec}')
+            break
+      self.lines[key] = points
+      self.points = self.points | set(points)
+      self.theres_changes = True
+   
+   def new_segment(self, name:str, value):
+      pass

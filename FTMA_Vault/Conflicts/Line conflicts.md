@@ -8,4 +8,4 @@ Related: [[Segment conflicts]]
 	* **v3-4**: replace it (just it an no propagation)
 		this means checking for existence
 * **len == 2  
-* 
+* Segment tree

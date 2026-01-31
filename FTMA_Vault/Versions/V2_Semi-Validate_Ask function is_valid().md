@@ -13,11 +13,14 @@
 + point-lines assignation
 + line change flag (for get_triangles() function)
 # Workflow
-+ add a line
-	+ same replace that v3
-	+ add line and points
-	+ create the segment tree
-	+ turn change flag
+## add a line
++ [x] same replace that v3
++ [x] add line and points
++ [x] create the segment tree
++ [ ] turn change flag
+	+ [ ] when adding lines
+	+ [ ] when adding angles
+	+ [ ] when adding segments
 ## get triangles
 + if not flag
 	+ return triangle list
@@ -25,10 +28,9 @@
 	+ for each pair of points in each line add every non collinear points
 ## add a segment
 + add it to the line segment tree
-## add an angle
-## is valid
-### segments
-### angles
-
-### triangles
++  add an angle
+## add is_valid function
++ for segments
++ for angles
++ for triangles
 
