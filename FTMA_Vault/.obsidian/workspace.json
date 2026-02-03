@@ -141,7 +141,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -320,17 +320,17 @@
   },
   "active": "75532d1cd11fafff",
   "lastOpenFiles": [
-    "Conflicts/Angle conflicts.md",
+    "Versions/V3_Semi-Dummy_Validate only the basic in the constructor.md",
+    "Versions/V4_Dummy_Accept any value without validation.md",
+    "Versions/SegmentTree.md",
+    "Versions/V1_Total validation_Asserts validation before adding.md",
     "Versions/V2_Semi-Validate_Ask function is_valid().md",
     "segment_tree_visual.png",
-    "Versions/V1_Total validation_Asserts validation before adding.md",
-    "Versions/SegmentTree.md",
-    "Versions/V3_Semi-Dummy_Validate only the basic in the constructor.md",
+    "Conflicts/Angle conflicts.md",
     "Conflicts/SegmentTree conflicts.md",
     "Untitled.base",
     "Global notes.md",
     "Conflicts/Segment conflicts.md",
-    "Versions/V4_Dummy_Accept any value without validation.md",
     "Conflicts/SegmentTree Canvas.canvas",
     "Conflicts/Line conflicts.md",
     "Finding the missing angle.md",

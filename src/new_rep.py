@@ -1,5 +1,6 @@
 import math
 from itertools import combinations
+from copy import deepcopy
 
 class DummyGeom:
    def __init__(self):
@@ -244,6 +245,7 @@ class GeomSegmentTree:
    
    def is_valid(self):
       return self.max_propagation() ^ self.min_propagation()
+   
 class SemiValidateGeom:
    def __init__(self):
       print('''Antes de agregar valores de segmentos y angulos asegurate de colocar 
@@ -308,15 +310,22 @@ class SemiValidateGeom:
             triangles_with_seg = [frozenset(seg ^ set(point)) for point in self.points-set(self.lines[key])]
             for triangle in triangles_with_seg:
                self.triangles[triangle].segments[seg] = value
+      self.theres_changes = False
       return True
    
-   def new_angle(self, name, value):
+   def new_angle(self, name, value, prop_of = None):
       assert len(name) == 3, "El nombre tiene que tener 3 caracteres que sirvan de puntos."
       assert value > 0, "Los angulos deben ser positivos."
       assert value < 180, "Los angulos deben ser menores a 180."
       assert set(name) & self.points == set(name), "Los puntos deven ser puntos existentes"
       
+      if prop_of:
+         if name in self.angles.keys():
+            assert self.angles[name] == value, f'No se pudo propagar el valor {prop_of}:{self.angles[prop_of]} en el ángulo {name} por que tiene el valor asignado de {self.angles[name]}'
+      
       self.angles[name] = value
+      self.triangles[set(name)].angle[name[1]] = value
+      self.theres_changes = True
    
    def related_angles_to(self, name:str):
       keys = []
@@ -361,12 +370,35 @@ class SemiValidateGeom:
    
    def propagate_angles(self):
       if self.theres_changes:
-         for name, value in self.angles.items():
+         angles = deepcopy(self.angles.items())
+         for name, value in angles:
             same_val, supplementaries = self.related_angles_to(name)
             for angle in same_val:
-               self.new_angle(angle, value)
+               self.new_angle(angle, value, prop_of=name)
             for angle in supplementaries:
-               self.new_angle(angle, 180-value)
+               self.new_angle(angle, 180-value, prop_of=name)
+      self.theres_changes = False
+   
+   def triangle_is_valid(self, triangle):
+      name = triangle.name
+      
+      segment_values = [value for value in triangle.segments if value != None]
+      angle_values = [angle for angle in triangle.angle.values() if angle != None]
+      
+      if len(segment_values == 3):
+         m = max(segment_values)
+         assert sum(segment_values) > 2*m, f'El triangulo {name}, con lados {segment_values}, no cumple la desigualdad del triangulo'
+      
+      if len(angle_values) == 2:
+         assert sum(angle_values) < 180, f'Los angulos del triangulo {name}:{triangle.angle.items()} suman más de 180°'
+      if len(angle_values) == 3:
+         assert sum(angle_values) == 180, f'Los angulos del triangulo {name}:{triangle.angle.items()} no suman 180°'
    
    def is_valid(self):
-      pass
+      self.propage_segments()
+      self.propagate_angles()
+      
+      for triangle in self.get_triangles():
+         self.triangle_is_valid(triangle)
+      
+      return True

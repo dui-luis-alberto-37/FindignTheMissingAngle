@@ -1,5 +1,5 @@
 # is_valid() notes
-+ Every call has to check if that estructure is posible.
++ Every call has to check if that structure is possible.
 	+ non  $[l_i\cap l_j]>= 2$  (made in line adding)
 	+ non-collinear triangles (made in line adding)
 	+ segment adding
@@ -31,17 +31,23 @@
 + [x] add it to triangles
 	+ [x] find those triangles
 ## add an angle
-- [ ] just add it
+- [x] just add it
 ## related angles to
 - [x] find triangles with the same angle
 - [x] find supplementary angles
 ## propagate angles
 - if changes:
-	for every angle
+	- [x] for every angle
+		- [x]  if it has a value assert is the same as which has to be add it
+		- [x]  if not just add it
 ## add is_valid function
-+ for segments
-+ for angles
-+ for triangles
++ [ ] for segments
+	+ [x] no problem with segment tree
+	+ [ ] no problem with triangle inequality
++ [ ] for angles
+	+ [ ] for each triangle
+		+ [ ] depending of how many values 
+			+ [ ] assert sum never grater than 180
 ## for the future
 - [ ] points to lines dic for optimization in locate lines
-
+- [ ] better value propagation for segments
