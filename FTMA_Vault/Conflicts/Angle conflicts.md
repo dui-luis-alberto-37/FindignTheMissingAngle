@@ -1,8 +1,8 @@
 ## Assertions
-+ only positives
 + len == 3
-+ existing points
++ only positives
 + no grater than 180
++ existing points
 ---
 
 * **repeated angles** (same angle, diff value)

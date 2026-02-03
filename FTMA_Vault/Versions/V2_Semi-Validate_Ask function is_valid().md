@@ -17,20 +17,31 @@
 + [x] same replace that v3
 + [x] add line and points
 + [x] create the segment tree
-+ [ ] turn change flag
-	+ [ ] when adding lines
-	+ [ ] when adding angles
-	+ [ ] when adding segments
++ [x] turn change flag
 ## get triangles
-+ if not flag
-	+ return triangle list
-+ else
-	+ for each pair of points in each line add every non collinear points
++ [x] if not flag
+	+ [x] return triangle list
++ [x] else
+	+ [x] for each pair of points in each line add every non collinear points
 ## add a segment
-+ add it to the line segment tree
-+  add an angle
+- [x] just add it to segments
+## segment propagation
+- [x] identify the lines
++ [x] add it to the line segment tree
++ [x] add it to triangles
+	+ [x] find those triangles
+## add an angle
+- [ ] just add it
+## related angles to
+- [x] find triangles with the same angle
+- [x] find supplementary angles
+## propagate angles
+- if changes:
+	for every angle
 ## add is_valid function
 + for segments
 + for angles
 + for triangles
+## for the future
+- [ ] points to lines dic for optimization in locate lines
 

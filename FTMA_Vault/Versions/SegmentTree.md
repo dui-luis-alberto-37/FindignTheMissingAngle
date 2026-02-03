@@ -36,3 +36,4 @@
 
 ## fixes
 - [x] fix AE = 10 and AD = 10 in min propagation
+- [x] name key type frozen set

@@ -1,4 +1,5 @@
 import math
+from itertools import combinations
 
 class DummyGeom:
    def __init__(self):
@@ -76,7 +77,7 @@ class SemiDummyGeom:
          self.triangles[triangle] = SemiDummyTriangle(triangle)
          self.triangles[triangle].segments[name] = value
    
-   def new_angles(self, name:str, value):
+   def new_angle(self, name:str, value):
       if len(name) != 3:
          raise ValueError("El nombre tiene que tener 3 caracteres que sirvan de puntos.")
       if value <= 0:
@@ -118,6 +119,7 @@ class GeomSegmentTree:
          print(parents)
          leafs = set()
          for parent in parents:
+            parent = frozenset(parent)
             print(self.segments[parent].name,':', self.segments[parent].min, '-', self.segments[parent].value,'-', self.segments[parent].max, sep='\t')
             
             left = self.segments[parent].left
@@ -134,7 +136,7 @@ class GeomSegmentTree:
       
       leafs = [line[i:i+2] for i in range(len(line)-1)]
       for v in leafs:
-         self.segments[v] = Node(v)
+         self.segments[frozenset(v)] = Node(v)
       
       while len(leafs) > 1:
          # print(leafs)
@@ -143,15 +145,15 @@ class GeomSegmentTree:
    
    def parent(self, l, r):
       p_name = l[0] + r[-1]
-      p = self.segments[p_name] = Node(p_name)
-      p.left = l
-      p.right = r
-      self.segments[l].rparent = p_name
-      self.segments[r].lparent = p_name
+      p = self.segments[frozenset(p_name)] = Node(p_name)
+      p.left = frozenset(l)
+      p.right = frozenset(r)
+      self.segments[frozenset(l)].rparent = frozenset(p_name)
+      self.segments[frozenset(r)].lparent = frozenset(p_name)
       return p_name
    
    def set_value(self, name, value, auto_prop = False):
-      v = self.segments[name]
+      v = self.segments[frozenset(name)]
       v.value = value
       v.max = value
       v.min = value
@@ -168,8 +170,8 @@ class GeomSegmentTree:
          parents = [self.root]
       leafs = set()
       for parent in parents:
-         leafs.add(self.segments[parent].left)
-         leafs.add(self.segments[parent].right)
+         leafs.add(self.segments[frozenset(parent)].left)
+         leafs.add(self.segments[frozenset(parent)].right)
       
       while leafs:
          # print(leafs)
@@ -210,7 +212,7 @@ class GeomSegmentTree:
       
       parents = set()
       for leaf in leafs:
-         v = self.segments[leaf]
+         v = self.segments[frozenset(leaf)]
          if v.rparent:
             parents.add(v.rparent)
          if v.lparent:
@@ -250,11 +252,12 @@ class SemiValidateGeom:
       self.points = set()
       self.angles = dict()
       self.segments = dict()
+      self.segment_trees = dict()
       self.triangles = dict()
       self.theres_changes = False
    
    def new_line(self, key:str, points:list):
-      points = list(points)
+      assert len(set(points)) == len(points), 'No repitas puntos'
       for k, line in self.lines:
          intersec = set(line) & set(points)
          if len(intersec) >= 2:
@@ -262,9 +265,108 @@ class SemiValidateGeom:
             self.points = self.points - set(line)
             print(f'La linea {k}:{line} será remplazada por la linea {key}:{points} debido a que comparten los siguientes puntos {intersec}')
             break
+      if key in self.lines.keys():
+         f'La linea {key}:{self.lines[key]} ya existe, se remplazará por {points}'
       self.lines[key] = points
+      self.segment_trees[key] = GeomSegmentTree(''.join(points))
       self.points = self.points | set(points)
       self.theres_changes = True
+      
+   def get_triangles(self):
+      if self.theres_changes:
+         for line in self.lines.values():
+            non_collinear = self.points - set(line)
+            pair_points = combinations(line, 2)
+            for pair in pair_points:
+               for point in non_collinear:
+                  self.triangles[frozenset([*pair, point])] = SemiDummyTriangle(''.join([*pair, point]))
+      return self.triangles
    
    def new_segment(self, name:str, value):
+      
+      if value <= 0:
+         raise ValueError("Los lados deben ser positivos.")
+      assert len(name) == 2, f'El segmento {name} tiene que tener 2 caracteres que sirvan de puntos.'
+      for p in name:
+         assert p in self.points, f'El punto {p} no es un punto existente'
+      name = frozenset(name)
+      
+      self.segments[name] = value
+      
+   def propage_segments(self):
+      if self.theres_changes:
+         self.triangles = self.get_triangles()
+         for seg, value in self.segments.items():
+            for k, line in self.lines.items():
+               intersec = set(line) & set(seg)
+               if len(intersec) == 2:
+                  key = k
+                  break
+            segment_tree = self.segment_trees[key]
+            segment_tree.set_value(seg, value)
+            
+            triangles_with_seg = [frozenset(seg ^ set(point)) for point in self.points-set(self.lines[key])]
+            for triangle in triangles_with_seg:
+               self.triangles[triangle].segments[seg] = value
+      return True
+   
+   def new_angle(self, name, value):
+      assert len(name) == 3, "El nombre tiene que tener 3 caracteres que sirvan de puntos."
+      assert value > 0, "Los angulos deben ser positivos."
+      assert value < 180, "Los angulos deben ser menores a 180."
+      assert set(name) & self.points == set(name), "Los puntos deven ser puntos existentes"
+      
+      self.angles[name] = value
+   
+   def related_angles_to(self, name:str):
+      keys = []
+      for k, line in self.lines.items():
+         if len(set(line) & set(name)) == 2:
+            if name[0] in line:
+               keys.insert(0,k)
+            else:
+               keys.append(k)
+      assert len(keys) == 2, f'No se pudieron encontrar las lineas'
+      
+      l1 = self.lines[keys[0]]
+      l2 = self.lines[keys[1]]
+      a,b,c = name
+      b_indx = l1.index(b)
+      
+      if a in l1[:b_indx]:
+         same_l1, opposite_l1 = l1[:b_indx], l1[b_indx+1:]
+      else:
+         same_l1, opposite_l1 = l1[b_indx+1:], l1[:b_indx]
+      if c in l2[:b_indx]:
+         same_l2, opposite_l2 = l2[:b_indx], l2[b_indx+1:]
+      else:
+         same_l2, opposite_l2 = l2[b_indx+1:], l2[:b_indx]
+      
+      same_val = []
+      supplementaries = []
+      
+      for a in same_l1:
+         for c in same_l2:
+            same_val.append(''.join([a,b,c]))
+         for c in opposite_l2:
+            supplementaries.append(''.join([a,b,c]))
+      
+      for a in opposite_l1:
+         for c in opposite_l2:
+            same_val.append(''.join([a,b,c]))
+         for c in same_l2:
+            supplementaries.append(''.join([a,b,c]))
+      
+      return same_val, supplementaries
+   
+   def propagate_angles(self):
+      if self.theres_changes:
+         for name, value in self.angles.items():
+            same_val, supplementaries = self.related_angles_to(name)
+            for angle in same_val:
+               self.new_angle(angle, value)
+            for angle in supplementaries:
+               self.new_angle(angle, 180-value)
+   
+   def is_valid(self):
       pass
