@@ -260,7 +260,7 @@ class SemiValidateGeom:
    
    def new_line(self, key:str, points:list):
       assert len(set(points)) == len(points), 'No repitas puntos'
-      for k, line in self.lines:
+      for k, line in self.lines.items():
          intersec = set(line) & set(points)
          if len(intersec) >= 2:
             del self.lines[k]
@@ -314,6 +314,8 @@ class SemiValidateGeom:
       return True
    
    def new_angle(self, name, value, prop_of = None):
+      if self.theres_changes:
+         self.get_triangles()
       assert len(name) == 3, "El nombre tiene que tener 3 caracteres que sirvan de puntos."
       assert value > 0, "Los angulos deben ser positivos."
       assert value < 180, "Los angulos deben ser menores a 180."
@@ -324,7 +326,7 @@ class SemiValidateGeom:
             assert self.angles[name] == value, f'No se pudo propagar el valor {prop_of}:{self.angles[prop_of]} en el ángulo {name} por que tiene el valor asignado de {self.angles[name]}'
       
       self.angles[name] = value
-      self.triangles[set(name)].angle[name[1]] = value
+      self.triangles[frozenset(name)].angles[name[1]] = value
       self.theres_changes = True
    
    def related_angles_to(self, name:str):
@@ -380,21 +382,24 @@ class SemiValidateGeom:
       self.theres_changes = False
    
    def triangle_is_valid(self, triangle):
-      name = triangle.name
       
-      segment_values = [value for value in triangle.segments if value != None]
-      angle_values = [angle for angle in triangle.angle.values() if angle != None]
+      name = triangle
+      triangle = self.triangles[name]
       
-      if len(segment_values == 3):
+      segment_values = [value for value in triangle.segments.values() if value != None]
+      angle_values = [angle for angle in triangle.angles.values() if angle != None]
+      
+      if len(segment_values) == 3:
          m = max(segment_values)
          assert sum(segment_values) > 2*m, f'El triangulo {name}, con lados {segment_values}, no cumple la desigualdad del triangulo'
       
       if len(angle_values) == 2:
-         assert sum(angle_values) < 180, f'Los angulos del triangulo {name}:{triangle.angle.items()} suman más de 180°'
+         assert sum(angle_values) < 180, f'Los angulos del triangulo {name}:{triangle.angles.items()} suman más de 180°'
       if len(angle_values) == 3:
-         assert sum(angle_values) == 180, f'Los angulos del triangulo {name}:{triangle.angle.items()} no suman 180°'
+         assert sum(angle_values) == 180, f'Los angulos del triangulo {name}:{triangle.angles.items()} no suman 180°'
    
    def is_valid(self):
+      self.get_triangles()
       self.propage_segments()
       self.propagate_angles()
       
