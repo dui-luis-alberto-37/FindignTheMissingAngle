@@ -6,7 +6,7 @@
       {
         "id": "7077674541380067",
         "type": "tabs",
-        "dimension": 37.12374581939799,
+        "dimension": 72.52747252747253,
         "children": [
           {
             "id": "90c9531688b2166b",
@@ -51,6 +51,34 @@
             }
           },
           {
+            "id": "34aa26ddbe078f8f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Search algorithm/Search for V4.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Search for V4"
+            }
+          },
+          {
+            "id": "a0a51e015218364b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Versions/V1_Total validation_Asserts validation before adding.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "V1_Total validation_Asserts validation before adding"
+            }
+          },
+          {
             "id": "9b42722cfe697164",
             "type": "leaf",
             "state": {
@@ -68,103 +96,66 @@
         "currentTab": 3
       },
       {
-        "id": "441c5d8db2457aaa",
-        "type": "split",
-        "dimension": 62.87625418060201,
+        "id": "17638703730fa548",
+        "type": "tabs",
+        "dimension": 27.47252747252747,
         "children": [
           {
-            "id": "d2b85c61eb170bc3",
-            "type": "tabs",
-            "children": [
-              {
-                "id": "a0a51e015218364b",
-                "type": "leaf",
-                "state": {
-                  "type": "image",
-                  "state": {
-                    "file": "Figures/image2.png"
-                  },
-                  "icon": "lucide-image",
-                  "title": "image2"
-                }
+            "id": "1afed18ffbc4a3ad",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Conflicts/Segment conflicts.md",
+                "mode": "source",
+                "source": false
               },
-              {
-                "id": "3bb642b1c3036c6e",
-                "type": "leaf",
-                "state": {
-                  "type": "image",
-                  "state": {
-                    "file": "Figures/image.png"
-                  },
-                  "icon": "lucide-image",
-                  "title": "image"
-                }
-              }
-            ]
+              "icon": "lucide-file",
+              "title": "Segment conflicts"
+            }
           },
           {
-            "id": "17638703730fa548",
-            "type": "tabs",
-            "children": [
-              {
-                "id": "1afed18ffbc4a3ad",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "Conflicts/Segment conflicts.md",
-                    "mode": "source",
-                    "source": false
-                  },
-                  "icon": "lucide-file",
-                  "title": "Segment conflicts"
-                }
+            "id": "bb4bb43defaf1dd9",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "segment_tree_visual.png"
               },
-              {
-                "id": "bb4bb43defaf1dd9",
-                "type": "leaf",
-                "state": {
-                  "type": "image",
-                  "state": {
-                    "file": "segment_tree_visual.png"
-                  },
-                  "icon": "lucide-image",
-                  "title": "segment_tree_visual"
-                }
+              "icon": "lucide-image",
+              "title": "segment_tree_visual"
+            }
+          },
+          {
+            "id": "90f11be7f699a247",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Conflicts/Angle conflicts.md",
+                "mode": "source",
+                "source": false
               },
-              {
-                "id": "90f11be7f699a247",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "Conflicts/Angle conflicts.md",
-                    "mode": "source",
-                    "source": false
-                  },
-                  "icon": "lucide-file",
-                  "title": "Angle conflicts"
-                }
+              "icon": "lucide-file",
+              "title": "Angle conflicts"
+            }
+          },
+          {
+            "id": "cbd754ccfbdd6dbc",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Global notes.md",
+                "mode": "source",
+                "source": false
               },
-              {
-                "id": "cbd754ccfbdd6dbc",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "Global notes.md",
-                    "mode": "source",
-                    "source": false
-                  },
-                  "icon": "lucide-file",
-                  "title": "Global notes"
-                }
-              }
-            ],
-            "currentTab": 1
+              "icon": "lucide-file",
+              "title": "Global notes"
+            }
           }
         ],
-        "direction": "horizontal"
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -235,7 +226,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "de864cc50c8c641a",
@@ -340,25 +332,24 @@
       "bases:Create new base": false
     }
   },
-  "active": "a0a51e015218364b",
+  "active": "34aa26ddbe078f8f",
   "lastOpenFiles": [
-    "Figures/image.png",
-    "Global notes.md",
-    "Figures/image2.png",
-    "Untitled.md",
-    "Figures/Unconfirmed 848684.crdownload",
-    "Figures/Unconfirmed 944019.crdownload",
     "Versions/V2_Semi-Validate_Ask function is_valid().md",
+    "Search algorithm/Search for V4.md",
+    "Search algorithm",
+    "Figures/image2.png",
+    "Figures/image.png",
     "Figures",
-    "Versions/V3_Semi-Dummy_Validate only the basic in the constructor.md",
-    "Versions/V4_Dummy_Accept any value without validation.md",
-    "Versions/SegmentTree.md",
-    "Versions/V1_Total validation_Asserts validation before adding.md",
-    "segment_tree_visual.png",
     "Conflicts/Angle conflicts.md",
+    "segment_tree_visual.png",
+    "Versions/V1_Total validation_Asserts validation before adding.md",
+    "Versions/SegmentTree.md",
+    "Versions/V3_Semi-Dummy_Validate only the basic in the constructor.md",
     "Conflicts/SegmentTree conflicts.md",
     "Untitled.base",
+    "Global notes.md",
     "Conflicts/Segment conflicts.md",
+    "Versions/V4_Dummy_Accept any value without validation.md",
     "Conflicts/SegmentTree Canvas.canvas",
     "Conflicts/Line conflicts.md",
     "Finding the missing angle.md",
