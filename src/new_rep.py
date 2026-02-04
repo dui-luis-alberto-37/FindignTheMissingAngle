@@ -14,7 +14,7 @@ class DummyGeom:
       for point in points:
          self.points.add(point)
    
-   def new_angles(self, name:str, value):
+   def new_angle(self, name:str, value):
       if len(name) != 3:
          raise ValueError("El nombre tiene que tener 3 caracteres que sirvan de puntos.")
       if value <= 0:
@@ -90,6 +90,7 @@ class SemiDummyGeom:
       else:
          self.angles[name] = value
          triangle_name = frozenset(name)
+         self.triangles[triangle_name] = SemiDummyTriangle(triangle_name)
          self.triangles[triangle_name].angles[name[1]] = value
    
 class Node:
