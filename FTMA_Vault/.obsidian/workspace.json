@@ -56,12 +56,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Search algorithm/Search for V4.md",
+                "file": "Search algorithm/Search Gral.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Search for V4"
+              "title": "Search Gral"
             }
           },
           {
@@ -335,7 +335,7 @@
   "active": "34aa26ddbe078f8f",
   "lastOpenFiles": [
     "Versions/V2_Semi-Validate_Ask function is_valid().md",
-    "Search algorithm/Search for V4.md",
+    "Search algorithm/Search Gral.md",
     "Search algorithm",
     "Figures/image2.png",
     "Figures/image.png",
